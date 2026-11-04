@@ -15,6 +15,10 @@
       "cue": "CHARACTER",
       "parenthetical": "parenthetical",
       "line": "line"
+    },
+    "suggest": {
+      "label": "Character suggestions",
+      "speeches": "no lines | {n} line | {n} lines"
     }
   }
 }

@@ -1,16 +1,21 @@
 <script setup lang="ts">
+import { suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, ref, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
+import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
 import { PlayKeymap } from '../editor/keymap';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
 import { usePlayStore } from '../stores/play';
+import CueSuggestList from './CueSuggestList.vue';
 
 const { t } = useI18n();
 const store = usePlayStore();
+const page = ref<HTMLElement>();
+const suggestion = shallowRef<CueSuggestState>({ open: false, items: [], index: 0, from: 0 });
 
 const PLACEHOLDER_KEYS: Record<string, string> = {
   act: 'act',
@@ -26,6 +31,10 @@ const editor = useEditor({
     ...playExtensions,
     UniqueIds,
     PlayKeymap,
+    CueSuggest.configure({
+      suggest: (query) => suggestCharacters(store.play, query),
+      onChange: (state) => (suggestion.value = state),
+    }),
     // Além de orientar quem escreve, o texto de exemplo dá largura às partes
     // vazias da fala; sem isso o navegador não consegue pôr o cursor nelas.
     Placeholder.configure({
@@ -48,13 +57,15 @@ onBeforeUnmount(() => editor.value?.destroy());
 </script>
 
 <template>
-  <div class="page fmt-inline">
+  <div ref="page" class="page fmt-inline">
     <EditorContent :editor="editor" />
+    <CueSuggestList v-if="editor && page && suggestion.open" :editor="editor" :state="suggestion" :container="page" />
   </div>
 </template>
 
 <style scoped>
 .page {
+  position: relative;
   background: var(--page);
   max-width: 640px;
   min-height: 900px;

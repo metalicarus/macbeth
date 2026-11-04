@@ -15,6 +15,10 @@
       "cue": "PERSONAGEM",
       "parenthetical": "parentético",
       "line": "fala"
+    },
+    "suggest": {
+      "label": "Sugestões de personagem",
+      "speeches": "nenhuma fala | {n} fala | {n} falas"
     }
   }
 }
