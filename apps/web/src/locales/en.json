@@ -6,5 +6,15 @@
     "label": "Look",
     "papel": "Paper",
     "coxia": "Wings"
+  },
+  "editor": {
+    "placeholder": {
+      "act": "Act",
+      "scene": "Scene",
+      "direction": "Stage direction",
+      "cue": "CHARACTER",
+      "parenthetical": "parenthetical",
+      "line": "line"
+    }
   }
 }

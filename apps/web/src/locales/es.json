@@ -6,5 +6,15 @@
     "label": "Aspecto",
     "papel": "Papel",
     "coxia": "Bambalinas"
+  },
+  "editor": {
+    "placeholder": {
+      "act": "Acto",
+      "scene": "Escena",
+      "direction": "Acotación",
+      "cue": "PERSONAJE",
+      "parenthetical": "acotación",
+      "line": "parlamento"
+    }
   }
 }

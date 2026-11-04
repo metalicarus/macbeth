@@ -1,15 +1,42 @@
 <script setup lang="ts">
+import { Placeholder } from '@tiptap/extensions/placeholder';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { docToPlay, playToDoc } from '../editor/convert';
+import { PlayKeymap } from '../editor/keymap';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
 import { usePlayStore } from '../stores/play';
 
+const { t } = useI18n();
 const store = usePlayStore();
 
+const PLACEHOLDER_KEYS: Record<string, string> = {
+  act: 'act',
+  scene: 'scene',
+  direction: 'direction',
+  speechCue: 'cue',
+  speechParenthetical: 'parenthetical',
+  speechLine: 'line',
+};
+
 const editor = useEditor({
-  extensions: [...playExtensions, UniqueIds],
+  extensions: [
+    ...playExtensions,
+    UniqueIds,
+    PlayKeymap,
+    // Além de orientar quem escreve, o texto de exemplo dá largura às partes
+    // vazias da fala; sem isso o navegador não consegue pôr o cursor nelas.
+    Placeholder.configure({
+      includeChildren: true,
+      showOnlyCurrent: false,
+      placeholder: ({ node }) => {
+        const key = PLACEHOLDER_KEYS[node.type.name];
+        return key ? t(`editor.placeholder.${key}`) : '';
+      },
+    }),
+  ],
   content: playToDoc(store.play),
   editorProps: {
     attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
@@ -82,6 +109,11 @@ onBeforeUnmount(() => editor.value?.destroy());
  * Em linha: o padrão das edições brasileiras.
  *   MACBETH – (baixo) Dia tão feio e tão belo eu nunca vi.
  *   (Trovão. Entram as Bruxas.)
+ *
+ * O personagem e o parentético flutuam à esquerda e o texto da fala é um
+ * bloco comum: a primeira linha contorna o nome e as seguintes voltam para a
+ * margem. Não dá para usar partes "inline": numa parte inline vazia o
+ * navegador joga o cursor de volta para o fim do nome.
  */
 .fmt-inline :deep(.el-direction)::before {
   content: '(';
@@ -91,8 +123,15 @@ onBeforeUnmount(() => editor.value?.destroy());
   content: ')';
 }
 
+.fmt-inline :deep(.speech-cue),
+.fmt-inline :deep(.speech-parenthetical) {
+  float: left;
+  position: relative;
+  margin-right: 1ch;
+}
+
 .fmt-inline :deep(.speech-cue)::after {
-  content: ' – ';
+  content: '\00a0–';
   font-weight: 400;
 }
 
@@ -101,6 +140,70 @@ onBeforeUnmount(() => editor.value?.destroy());
 }
 
 .fmt-inline :deep(.speech-parenthetical)::after {
-  content: ') ';
+  content: ')';
+}
+
+.fmt-inline :deep(.speech-line) {
+  display: block;
+}
+
+.fmt-inline :deep(.el-speech)::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/* Elementos vazios mostram o texto de exemplo, sem ocupar o lugar do cursor. */
+.page :deep(.is-empty)::before {
+  color: var(--muted);
+  font-weight: 400;
+  font-style: normal;
+  pointer-events: none;
+}
+
+.page :deep(.el-act.is-empty)::before,
+.page :deep(.el-scene.is-empty)::before {
+  content: attr(data-placeholder);
+  display: block;
+  height: 0;
+}
+
+.fmt-inline :deep(.el-direction.is-empty)::before {
+  content: '(' attr(data-placeholder) ')';
+  float: left;
+  height: 0;
+}
+
+.fmt-inline :deep(.el-direction.is-empty)::after,
+.fmt-inline :deep(.speech-cue.is-empty)::after,
+.fmt-inline :deep(.speech-parenthetical.is-empty)::after {
+  content: none;
+}
+
+/* Nome e parentético vazios ganham a largura do texto de exemplo. */
+.fmt-inline :deep(.speech-cue.is-empty) {
+  min-width: 11ch;
+}
+
+.fmt-inline :deep(.speech-parenthetical.is-empty) {
+  min-width: 14ch;
+}
+
+.fmt-inline :deep(.speech-cue.is-empty)::before,
+.fmt-inline :deep(.speech-parenthetical.is-empty)::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+}
+
+.fmt-inline :deep(.speech-parenthetical.is-empty)::before {
+  content: '(' attr(data-placeholder) ')';
+}
+
+.fmt-inline :deep(.speech-line.is-empty)::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
 }
 </style>

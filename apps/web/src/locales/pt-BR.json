@@ -6,5 +6,15 @@
     "label": "Visual",
     "papel": "Papel",
     "coxia": "Coxia"
+  },
+  "editor": {
+    "placeholder": {
+      "act": "Ato",
+      "scene": "Cena",
+      "direction": "Rubrica",
+      "cue": "PERSONAGEM",
+      "parenthetical": "parentético",
+      "line": "fala"
+    }
   }
 }
