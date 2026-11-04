@@ -1,0 +1,19 @@
+# Casca do desktop. Não há código Rust próprio: só o mínimo que o Tauri exige.
+[package]
+name = "macbeth"
+version = "0.1.0"
+description = "Editor de texto feito para o teatro"
+license = "AGPL-3.0-only"
+repository = "https://github.com/metalicarus/macbeth"
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "macbeth_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = [] }

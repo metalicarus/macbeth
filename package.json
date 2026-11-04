@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "pnpm -r --if-present test",
-    "typecheck": "pnpm -r --if-present typecheck"
+    "typecheck": "pnpm -r --if-present typecheck",
+    "dev": "pnpm -C apps/web dev",
+    "desktop": "pnpm -C apps/desktop dev"
   },
   "devDependencies": {
     "typescript": "~6.0.3"
