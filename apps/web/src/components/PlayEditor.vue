@@ -3,7 +3,7 @@ import { Placeholder } from '@tiptap/extensions/placeholder';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { docToPlay, playToDoc } from '../editor/convert';
+import { playToDoc } from '../editor/convert';
 import { PlayKeymap } from '../editor/keymap';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
@@ -41,7 +41,7 @@ const editor = useEditor({
   editorProps: {
     attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
   },
-  onUpdate: ({ editor }) => store.replace(docToPlay(editor.getJSON(), store.play)),
+  onUpdate: ({ editor }) => store.applyDoc(editor.getJSON()),
 });
 
 onBeforeUnmount(() => editor.value?.destroy());
