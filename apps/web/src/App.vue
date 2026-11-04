@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import { usePlayStore } from './stores/play';
 
 const { t } = useI18n();
-const { play } = storeToRefs(usePlayStore());
+const { play, fileName, dirty } = storeToRefs(usePlayStore());
 </script>
 
 <template>
   <div class="app">
     <header class="topbar">
       <span class="brand">Macbeth</span>
-      <span class="file">{{ play.titlePage.title || t('app.untitled') }}</span>
+      <span class="file">
+        {{ fileName ?? (play.titlePage.title || t('app.untitled')) }}
+        <span v-if="fileName || dirty" class="status" :class="{ dirty }">● {{ dirty ? t('file.unsaved') : t('file.saved') }}</span>
+      </span>
       <span class="spacer"></span>
+      <FileActions />
       <LookToggle />
     </header>
     <main class="desk">
@@ -56,6 +61,15 @@ const { play } = storeToRefs(usePlayStore());
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+.status {
+  margin-left: 6px;
+  color: #2e9e5b;
+}
+
+.status.dirty {
+  color: var(--muted);
 }
 
 .spacer {

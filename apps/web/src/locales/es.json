@@ -20,5 +20,22 @@
       "label": "Sugerencias de personaje",
       "speeches": "ningún parlamento | {n} parlamento | {n} parlamentos"
     }
+  },
+  "file": {
+    "new": "Nuevo",
+    "open": "Abrir",
+    "save": "Guardar",
+    "saveAs": "Guardar como…",
+    "saved": "guardado",
+    "unsaved": "sin guardar",
+    "confirmDiscard": "La obra tiene cambios sin guardar. ¿Descartar los cambios?",
+    "errors": {
+      "not-a-zip": "El archivo no es un .mbth válido.",
+      "missing-play": "El archivo .mbth no contiene la obra.",
+      "invalid-json": "El contenido de la obra está dañado.",
+      "newer-version": "Este archivo se guardó con una versión más nueva de Macbeth. Actualiza la aplicación para abrirlo.",
+      "invalid-structure": "La estructura de la obra en este archivo está dañada.",
+      "generic": "No se pudo completar la operación: {detail}"
+    }
   }
 }

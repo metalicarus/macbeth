@@ -20,5 +20,22 @@
       "label": "Character suggestions",
       "speeches": "no lines | {n} line | {n} lines"
     }
+  },
+  "file": {
+    "new": "New",
+    "open": "Open",
+    "save": "Save",
+    "saveAs": "Save as…",
+    "saved": "saved",
+    "unsaved": "not saved",
+    "confirmDiscard": "The play has unsaved changes. Discard them?",
+    "errors": {
+      "not-a-zip": "This is not a valid .mbth file.",
+      "missing-play": "The .mbth file does not contain a play.",
+      "invalid-json": "The play's content is corrupted.",
+      "newer-version": "This file was saved by a newer version of Macbeth. Update the app to open it.",
+      "invalid-structure": "The structure of the play in this file is damaged.",
+      "generic": "The operation could not be completed: {detail}"
+    }
   }
 }

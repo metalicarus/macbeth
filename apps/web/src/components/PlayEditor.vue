@@ -2,7 +2,7 @@
 import { suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
-import { onBeforeUnmount, ref, shallowRef } from 'vue';
+import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
 import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
@@ -52,6 +52,12 @@ const editor = useEditor({
   },
   onUpdate: ({ editor }) => store.applyDoc(editor.getJSON()),
 });
+
+// Outra peça foi aberta (ou uma nova criada): o editor passa a mostrá-la.
+watch(
+  () => store.revision,
+  () => editor.value?.commands.setContent(playToDoc(store.play), { emitUpdate: false }),
+);
 
 onBeforeUnmount(() => editor.value?.destroy());
 </script>
