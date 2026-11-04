@@ -1,5 +1,10 @@
 {
   "app": {
     "untitled": "Obra sin título"
+  },
+  "look": {
+    "label": "Aspecto",
+    "papel": "Papel",
+    "coxia": "Bambalinas"
   }
 }

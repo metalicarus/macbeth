@@ -1,5 +1,10 @@
 {
   "app": {
     "untitled": "Untitled play"
+  },
+  "look": {
+    "label": "Look",
+    "papel": "Paper",
+    "coxia": "Wings"
   }
 }
