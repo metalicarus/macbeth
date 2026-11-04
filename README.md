@@ -24,6 +24,17 @@ apps/web/        o aplicativo Vue
 apps/desktop/    casca de desktop com Tauri 2
 ```
 
+## Como rodar
+
+Requisitos: Node 22 ou mais novo, pnpm (via `corepack enable`) e, para o desktop, Rust e as [dependências do Tauri](https://v2.tauri.app/start/prerequisites/) do seu sistema.
+
+```bash
+pnpm install
+pnpm desktop     # abre o app de desktop
+pnpm dev         # abre só a versão web, em http://localhost:1420
+pnpm test        # roda os testes
+```
+
 ## Licença
 
 [GNU Affero General Public License v3.0](LICENSE). Veja também [CONTRIBUTING.md](CONTRIBUTING.md).
