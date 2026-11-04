@@ -8,18 +8,21 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@macbeth/core": "workspace:*",
     "pinia": "^4.1.0",
-    "vue": "^3.5.44"
+    "vue": "^3.5.44",
+    "vue-i18n": "^11.4.18"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
     "@vue/tsconfig": "^0.9.1",
     "typescript": "~6.0.3",
     "vite": "^8.3.5",
+    "vitest": "^5.1.0",
     "vue-tsc": "^3.3.14"
   }
 }
