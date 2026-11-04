@@ -1,10 +1,30 @@
-import { addCharacter, CHARACTER_COLORS, createPlay } from '@macbeth/core';
+import { addCharacter, CHARACTER_COLORS, createPlay, MbthError, readMbth, writeMbth, type Play } from '@macbeth/core';
 import type { JSONContent } from '@tiptap/core';
+import { strToU8 } from 'fflate';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { setFileProvider, type FileHandle, type FileProvider } from '../files';
 import { usePlayStore } from './play';
 
 beforeEach(() => setActivePinia(createPinia()));
+afterEach(() => setFileProvider(null));
+
+/** Provedor falso: guarda o que foi salvo e devolve o arquivo que o teste mandar abrir. */
+function fakeFiles(toOpen?: { name: string; bytes: Uint8Array }) {
+  const saves: { bytes: Uint8Array; handle: FileHandle | null; suggestedName: string }[] = [];
+  let cancel = false;
+  const provider: FileProvider = {
+    open: async () => (toOpen && !cancel ? { ...toOpen, handle: `/peças/${toOpen.name}` } : null),
+    save: async (bytes, handle, suggestedName) => {
+      if (cancel) return null;
+      saves.push({ bytes, handle, suggestedName });
+      const name = typeof handle === 'string' ? handle.split('/').pop()! : suggestedName;
+      return { name, handle: handle ?? `/peças/${name}` };
+    },
+  };
+  setFileProvider(provider);
+  return { saves, cancelNext: () => (cancel = true) };
+}
 
 function docWithCues(...names: string[]): JSONContent {
   return {
@@ -43,9 +63,10 @@ describe('applyDoc', () => {
     ]);
   });
 
-  it('não remove quem já estava no cadastro, mesmo sem falas', () => {
+  it('não remove quem já estava no cadastro, mesmo sem falas', async () => {
+    fakeFiles({ name: 'porteiro.mbth', bytes: writeMbth({ play: addCharacter(createPlay(), 'Porteiro').play, extras: {} }) });
     const store = usePlayStore();
-    store.replace(addCharacter(createPlay(), 'Porteiro').play);
+    await store.open();
     typeName(store, 'Macbeth');
 
     expect(store.play.characters.map((c) => c.name)).toEqual(['Porteiro', 'Macbeth']);
@@ -57,5 +78,85 @@ describe('applyDoc', () => {
     store.applyDoc({ type: 'doc', content: [] });
 
     expect(store.play.characters).toEqual([]);
+  });
+});
+
+describe('abrir e salvar', () => {
+  function sample(): Play {
+    return addCharacter(createPlay({ title: 'Macbeth' }), 'Banquo').play;
+  }
+
+  it('abrir carrega a peça, o nome do arquivo e recarrega o editor', async () => {
+    const play = sample();
+    fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play, extras: {} }) });
+    const store = usePlayStore();
+    const revision = store.revision;
+
+    expect(await store.open()).toBe(true);
+    expect(store.play).toEqual(play);
+    expect(store.fileName).toBe('macbeth.mbth');
+    expect(store.dirty).toBe(false);
+    expect(store.revision).toBe(revision + 1);
+  });
+
+  it('cancelar a janela de abrir não muda nada', async () => {
+    fakeFiles();
+    const store = usePlayStore();
+    const before = store.play;
+
+    expect(await store.open()).toBe(false);
+    expect(store.play).toBe(before);
+  });
+
+  it('arquivo inválido gera MbthError e mantém a peça aberta', async () => {
+    fakeFiles({ name: 'ruim.mbth', bytes: strToU8('não é zip') });
+    const store = usePlayStore();
+    const before = store.play;
+
+    await expect(store.open()).rejects.toBeInstanceOf(MbthError);
+    expect(store.play).toBe(before);
+  });
+
+  it('salvar uma peça nova pergunta onde, com o título como nome sugerido', async () => {
+    const files = fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: sample(), extras: {} }) });
+    const store = usePlayStore();
+    store.newPlay();
+    store.applyDoc({ type: 'doc', content: [] });
+
+    expect(store.dirty).toBe(true);
+    expect(await store.save('Peça sem título')).toBe(true);
+    expect(files.saves[0]).toMatchObject({ handle: null, suggestedName: 'Peça sem título.mbth' });
+    expect(store.dirty).toBe(false);
+    expect(store.fileName).toBe('Peça sem título.mbth');
+  });
+
+  it('salvar de novo grava no mesmo arquivo, e "salvar como" pergunta outra vez', async () => {
+    const files = fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: sample(), extras: {} }) });
+    const store = usePlayStore();
+    await store.open();
+
+    await store.save('x');
+    await store.save('x', true);
+    expect(files.saves.map((s) => s.handle)).toEqual(['/peças/macbeth.mbth', null]);
+  });
+
+  it('preserva as entradas desconhecidas do arquivo ao salvar', async () => {
+    const stage = strToU8('{"marks":[]}');
+    const files = fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: sample(), extras: { 'pro/stage.json': stage } }) });
+    const store = usePlayStore();
+    await store.open();
+    await store.save('x');
+
+    expect(readMbth(files.saves[0]!.bytes).extras['pro/stage.json']).toEqual(stage);
+  });
+
+  it('cancelar a janela de salvar mantém as alterações pendentes', async () => {
+    const files = fakeFiles();
+    const store = usePlayStore();
+    store.applyDoc({ type: 'doc', content: [] });
+    files.cancelNext();
+
+    expect(await store.save('x')).toBe(false);
+    expect(store.dirty).toBe(true);
   });
 });
