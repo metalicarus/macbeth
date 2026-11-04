@@ -37,6 +37,17 @@ describe('addCharacter', () => {
     expect(play.characters).toHaveLength(2);
   });
 
+  it('reaproveita a cor de um personagem removido', () => {
+    const base = playWith('Macbeth', 'Banquo');
+    const play = removeCharacter(base, base.characters[0]!.id);
+    expect(addCharacter(play, 'Duncan').character.color).toBe(CHARACTER_COLORS[0]);
+  });
+
+  it('volta à primeira cor depois de usar todas', () => {
+    const play = playWith(...CHARACTER_COLORS.map((_, i) => `P${i}`));
+    expect(addCharacter(play, 'Extra').character.color).toBe(CHARACTER_COLORS[0]);
+  });
+
   it('recusa nome vazio', () => {
     expect(() => addCharacter(createPlay(), '   ')).toThrow(CharacterError);
   });

@@ -54,14 +54,17 @@ export function findCharacterByName(play: Play, name: string): Character | undef
   return play.characters.find((c) => normalizeName(c.name) === wanted);
 }
 
+/** A cor de fita menos usada; no empate, a primeira da lista. */
+function nextColor(play: Play): string {
+  const uses = new Map<string, number>(CHARACTER_COLORS.map((color) => [color, 0]));
+  for (const c of play.characters) if (uses.has(c.color)) uses.set(c.color, uses.get(c.color)! + 1);
+  return CHARACTER_COLORS.reduce((best, color) => (uses.get(color)! < uses.get(best)! ? color : best));
+}
+
 export function addCharacter(play: Play, name: string): { play: Play; character: Character } {
   const cleaned = cleanName(name);
   assertUniqueName(play, cleaned);
-  const character: Character = {
-    id: newId(),
-    name: cleaned,
-    color: CHARACTER_COLORS[play.characters.length % CHARACTER_COLORS.length]!,
-  };
+  const character: Character = { id: newId(), name: cleaned, color: nextColor(play) };
   return { play: { ...play, characters: [...play.characters, character] }, character };
 }
 
