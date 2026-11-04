@@ -3,12 +3,13 @@ import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { onBeforeUnmount } from 'vue';
 import { docToPlay, playToDoc } from '../editor/convert';
 import { playExtensions } from '../editor/schema';
+import { UniqueIds } from '../editor/unique-ids';
 import { usePlayStore } from '../stores/play';
 
 const store = usePlayStore();
 
 const editor = useEditor({
-  extensions: playExtensions,
+  extensions: [...playExtensions, UniqueIds],
   content: playToDoc(store.play),
   editorProps: {
     attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
