@@ -2,7 +2,7 @@
 import { Editor, type JSONContent } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
 import { afterEach, describe, expect, it } from 'vitest';
-import { backspace, enter, shiftTab, tab } from './keymap';
+import { backspace, enter, openParenthesis, shiftTab, tab } from './keymap';
 import { playExtensions } from './schema';
 
 let editor: Editor;
@@ -129,6 +129,67 @@ describe('Enter', () => {
     press(enter);
     expect(shape()).toEqual(['speech:Macbeth|Dia feio.', 'speech:| E belo.']);
     expect(cursor()).toBe('1.speechCue@0');
+  });
+});
+
+describe('atalhos no estilo Fountain', () => {
+  it('"Ato II" na rubrica vira ato e abre a cena', () => {
+    open(direction('Ato II'));
+    place(0, null, 'end');
+    press(enter);
+    expect(shape()).toEqual(['act:Ato II', 'scene:']);
+    expect(cursor()).toBe('1@0');
+  });
+
+  it('"Cena 2" na rubrica vira cena e abre a rubrica', () => {
+    open(direction('Cena 2 – Inverness'));
+    place(0, null, 'end');
+    press(enter);
+    expect(shape()).toEqual(['scene:Cena 2 – Inverness', 'direction:']);
+    expect(cursor()).toBe('1@0');
+  });
+
+  it('nome em maiúsculas na rubrica vira fala, com o cursor no texto', () => {
+    open(direction('LADY MACBETH'));
+    place(0, null, 'end');
+    press(enter);
+    expect(shape()).toEqual(['speech:LADY MACBETH|']);
+    expect(cursor()).toBe('0.speechLine@0');
+  });
+
+  it('mantém o id da rubrica convertida', () => {
+    open({ ...direction('MACBETH'), attrs: { id: 'r1' } });
+    place(0, null, 'end');
+    press(enter);
+    expect(editor.state.doc.child(0).attrs.id).toBe('r1');
+  });
+
+  it('rubrica comum segue o Enter normal', () => {
+    open(direction('Trovão.'));
+    place(0, null, 'end');
+    press(enter);
+    expect(shape()).toEqual(['direction:Trovão.', 'speech:|']);
+  });
+
+  it('"(" no personagem vazio transforma a fala em rubrica', () => {
+    open(speech('', ''));
+    place(0, 'speechCue', 'start');
+    expect(press(openParenthesis)).toBe(true);
+    expect(shape()).toEqual(['direction:']);
+  });
+
+  it('"(" no texto vazio abre o parentético', () => {
+    open(speech('Macbeth', ''));
+    place(0, 'speechLine', 'start');
+    expect(press(openParenthesis)).toBe(true);
+    expect(shape()).toEqual(['speech:Macbeth||']);
+    expect(cursor()).toBe('0.speechParenthetical@0');
+  });
+
+  it('"(" no meio do texto é só um parêntese', () => {
+    open(speech('Macbeth', 'Olá'));
+    place(0, 'speechLine', 'end');
+    expect(press(openParenthesis)).toBe(false);
   });
 });
 

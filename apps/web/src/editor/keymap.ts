@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/core';
 import type { Node as PMNode, ResolvedPos, Schema } from '@tiptap/pm/model';
-import { TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state';
+import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state';
+import { classifyLine } from './fountain';
 
 /*
  * Enter e Tab escolhem o próximo elemento, para que a peça se formate
@@ -116,10 +117,39 @@ function speechToDirection(state: EditorState, h: Here, text: PMNode['content'],
   return true;
 }
 
+/**
+ * Enter no fim de uma rubrica escrita como "Ato II", "Cena 3" ou "MACBETH":
+ * a rubrica vira ato, cena ou fala, e o cursor segue para onde se escreve
+ * em seguida.
+ */
+function fountainEnter(state: EditorState, h: Here, dispatch?: Dispatch): boolean {
+  const kind = classifyLine(h.element.textContent);
+  if (!kind) return false;
+  if (!dispatch) return true;
+
+  const { schema } = state;
+  const attrs = h.element.attrs;
+
+  if (kind === 'character') {
+    const speech = speechNode(schema, { attrs, cue: h.element.content });
+    const tr = state.tr.replaceWith(h.start, h.end, speech);
+    dispatch(moveTo(tr, partStart(speech, h.start, 'speechLine')!).scrollIntoView());
+    return true;
+  }
+
+  const converted = schema.nodes[kind]!.create(attrs, h.element.content);
+  const next = createElement(schema, NEXT_AFTER[kind]!);
+  const tr = state.tr.replaceWith(h.start, h.end, [converted, next]);
+  dispatch(moveTo(tr, h.start + converted.nodeSize + 1).scrollIntoView());
+  return true;
+}
+
 export const enter: Command = (state, dispatch) => {
   const h = here(state);
   if (!h) return false;
   const { schema } = state;
+
+  if (h.element.type.name === 'direction' && atEnd(h.$from) && fountainEnter(state, h, dispatch)) return true;
 
   if (h.element.type.name !== 'speech') {
     const next = NEXT_AFTER[h.element.type.name];
@@ -265,6 +295,23 @@ export const backspace: Command = (state, dispatch) => {
   return false;
 };
 
+/**
+ * "(" digitado numa parte vazia da fala: no personagem, a fala vira rubrica
+ * (que já aparece entre parênteses); no texto, abre o parentético.
+ */
+export const openParenthesis: Command = (state, dispatch) => {
+  const h = here(state);
+  if (!h || h.element.type.name !== 'speech' || h.$from.parent.content.size > 0) return false;
+
+  if (h.part === 'speechCue' && childOf(h.element, 'speechLine')!.content.size === 0) {
+    return speechToDirection(state, h, h.$from.parent.content, dispatch);
+  }
+  if (h.part === 'speechLine' && !childOf(h.element, 'speechParenthetical')) {
+    return tab(state, dispatch);
+  }
+  return false;
+};
+
 export const PlayKeymap = Extension.create({
   name: 'playKeymap',
   // Precisa rodar antes do Enter e do Backspace padrão do TipTap.
@@ -278,5 +325,16 @@ export const PlayKeymap = Extension.create({
       'Shift-Tab': run(shiftTab),
       Backspace: run(backspace),
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('playFountainInput'),
+        props: {
+          handleTextInput: (view, _from, _to, text) => text === '(' && openParenthesis(view.state, view.dispatch),
+        },
+      }),
+    ];
   },
 });
