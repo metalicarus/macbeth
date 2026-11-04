@@ -1,5 +1,4 @@
-import { MBTH_MIME_TYPE } from '@macbeth/core';
-import { FILTER_NAME, MBTH_EXTENSION, type FileProvider } from './provider';
+import { FILTER_NAME, MBTH_FILE, type FileProvider, type FileType } from './provider';
 
 /*
  * Navegador. Chrome e Edge têm a API de arquivos (File System Access), que
@@ -29,15 +28,18 @@ async function toBytes(file: Blob): Promise<Uint8Array> {
   return new Uint8Array(await file.arrayBuffer());
 }
 
+function pickerTypes(type: FileType): PickerOptions['types'] {
+  return [{ description: FILTER_NAME, accept: { [type.mime]: [`.${type.extension}`] } }];
+}
+
 export function browserFiles(): FileProvider {
-  const types = [{ description: FILTER_NAME, accept: { [MBTH_MIME_TYPE]: [`.${MBTH_EXTENSION}`] } }];
 
   if (hasFsAccess(window)) {
     const w = window;
     return {
       async open() {
         try {
-          const [handle] = await w.showOpenFilePicker({ types });
+          const [handle] = await w.showOpenFilePicker({ types: pickerTypes(MBTH_FILE) });
           const file = await handle!.getFile();
           return { name: file.name, bytes: await toBytes(file), handle };
         } catch (error) {
@@ -46,10 +48,12 @@ export function browserFiles(): FileProvider {
         }
       },
 
-      async save(bytes, handle, suggestedName) {
+      async save(bytes, handle, suggestedName, type = MBTH_FILE) {
         try {
           const target =
-            handle instanceof FileSystemFileHandle ? handle : await w.showSaveFilePicker({ suggestedName, types });
+            handle instanceof FileSystemFileHandle
+              ? handle
+              : await w.showSaveFilePicker({ suggestedName, types: pickerTypes(type) });
           const writable = await target.createWritable();
           await writable.write(bytes as Uint8Array<ArrayBuffer>);
           await writable.close();
@@ -67,7 +71,7 @@ export function browserFiles(): FileProvider {
       new Promise((resolve) => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = `.${MBTH_EXTENSION}`;
+        input.accept = `.${MBTH_FILE.extension}`;
         input.addEventListener('change', async () => {
           const file = input.files?.[0];
           resolve(file ? { name: file.name, bytes: await toBytes(file), handle: null } : null);
@@ -76,8 +80,8 @@ export function browserFiles(): FileProvider {
         input.click();
       }),
 
-    async save(bytes, _handle, suggestedName) {
-      const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: MBTH_MIME_TYPE }));
+    async save(bytes, _handle, suggestedName, type = MBTH_FILE) {
+      const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: type.mime }));
       const link = document.createElement('a');
       link.href = url;
       link.download = suggestedName;

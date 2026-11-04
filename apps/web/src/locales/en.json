@@ -36,6 +36,11 @@
       "newer-version": "This file was saved by a newer version of Macbeth. Update the app to open it.",
       "invalid-structure": "The structure of the play in this file is damaged.",
       "generic": "The operation could not be completed: {detail}"
-    }
+    },
+    "exportPdf": "Export PDF"
+  },
+  "print": {
+    "continues": "(continued)",
+    "continued": "(cont'd)"
   }
 }

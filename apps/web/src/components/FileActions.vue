@@ -2,7 +2,10 @@
 import { MbthError } from '@macbeth/core';
 import { onBeforeUnmount, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { fileProvider, PDF_FILE, suggestedFileName } from '../files';
 import { alertDialog, confirmDialog } from '../files/dialogs';
+import { scriptFonts } from '../print/fonts';
+import { playToPdf } from '../print/pdf';
 import { usePlayStore } from '../stores/play';
 
 const { t } = useI18n();
@@ -28,6 +31,16 @@ const newPlay = () => run(async () => (await discardChanges()) && store.newPlay(
 const open = () => run(async () => (await discardChanges()) && store.open());
 const save = (as = false) => run(() => store.save(t('app.untitled'), as));
 
+const exportPdf = () =>
+  run(async () => {
+    const bytes = await playToPdf(store.play, await scriptFonts(), {
+      continues: t('print.continues'),
+      continued: t('print.continued'),
+    });
+    const base = store.fileName?.replace(/\.mbth$/i, '') || store.play.titlePage.title || t('app.untitled');
+    await fileProvider().save(bytes, null, suggestedFileName(base, PDF_FILE.extension), PDF_FILE);
+  });
+
 function onKeydown(event: KeyboardEvent) {
   if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
   const key = event.key.toLowerCase();
@@ -35,6 +48,7 @@ function onKeydown(event: KeyboardEvent) {
     n: newPlay,
     o: open,
     s: () => save(event.shiftKey),
+    p: exportPdf,
   };
   const action = actions[key];
   if (!action) return;
@@ -50,6 +64,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   <div class="actions">
     <button type="button" :title="`${t('file.new')} (Ctrl+N)`" @click="newPlay">{{ t('file.new') }}</button>
     <button type="button" :title="`${t('file.open')} (Ctrl+O)`" @click="open">{{ t('file.open') }}</button>
+    <button type="button" :title="`${t('file.exportPdf')} (Ctrl+P)`" @click="exportPdf">{{ t('file.exportPdf') }}</button>
     <button
       type="button"
       class="primary"

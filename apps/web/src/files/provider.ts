@@ -4,6 +4,8 @@
  * provedores (nuvem, Google Drive) podem ser registrados sem mexer no editor.
  */
 
+import { MBTH_MIME_TYPE } from '@macbeth/core';
+
 /** Referência ao arquivo aberto, no formato que cada provedor entende. */
 export type FileHandle = unknown;
 
@@ -26,18 +28,25 @@ export interface FileProvider {
    * Grava no arquivo `handle`; sem handle, pergunta onde salvar.
    * Devolve `null` se a pessoa cancelar.
    */
-  save(bytes: Uint8Array, handle: FileHandle | null, suggestedName: string): Promise<SavedFile | null>;
+  save(bytes: Uint8Array, handle: FileHandle | null, suggestedName: string, type?: FileType): Promise<SavedFile | null>;
+}
+
+export interface FileType {
+  extension: string;
+  mime: string;
 }
 
 export const MBTH_EXTENSION = 'mbth';
+export const MBTH_FILE: FileType = { extension: MBTH_EXTENSION, mime: MBTH_MIME_TYPE };
+export const PDF_FILE: FileType = { extension: 'pdf', mime: 'application/pdf' };
 
 /** Rótulo do filtro nas janelas de arquivo; o nome do app vale em qualquer língua. */
 export const FILTER_NAME = 'Macbeth';
 
 /** "Macbeth.mbth" a partir do título da peça, sem caracteres que os sistemas recusam. */
-export function suggestedFileName(title: string): string {
+export function suggestedFileName(title: string, extension = MBTH_EXTENSION): string {
   const base = title.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
-  return `${base || 'peca'}.${MBTH_EXTENSION}`;
+  return `${base || 'peca'}.${extension}`;
 }
 
 export function baseName(path: string): string {
