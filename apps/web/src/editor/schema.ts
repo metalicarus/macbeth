@@ -71,7 +71,8 @@ export const SpeechCue = Node.create({
   marks: '',
   addAttributes: () => ({ characterId: hidden }),
   parseHTML: () => [{ tag: 'span[data-type="speech-cue"]' }],
-  renderHTML: () => ['span', { 'data-type': 'speech-cue', class: 'speech-cue' }, 0],
+  // Nomes próprios não passam pelo corretor ortográfico.
+  renderHTML: () => ['span', { 'data-type': 'speech-cue', class: 'speech-cue', spellcheck: 'false' }, 0],
 });
 
 export const SpeechParenthetical = Node.create({

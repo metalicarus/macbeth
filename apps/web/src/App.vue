@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { createPlay } from '@macbeth/core';
+import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import LookToggle from './components/LookToggle.vue';
+import PlayEditor from './components/PlayEditor.vue';
+import { usePlayStore } from './stores/play';
 
 const { t } = useI18n();
-const play = createPlay();
+const { play } = storeToRefs(usePlayStore());
 </script>
 
 <template>
@@ -15,7 +17,9 @@ const play = createPlay();
       <span class="spacer"></span>
       <LookToggle />
     </header>
-    <main class="desk"></main>
+    <main class="desk">
+      <PlayEditor />
+    </main>
   </div>
 </template>
 
@@ -62,5 +66,6 @@ const play = createPlay();
   background: var(--desk);
   min-height: 0;
   overflow: auto;
+  padding: 0 24px;
 }
 </style>
