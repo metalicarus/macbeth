@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 120 120">
+  <title>Macbeth</title>
+  <!-- Ícone do app: a coroa com o punhal no centro, sobre vermelho-sangue,
+       e uma lua sobre cada ponta pelas três bruxas do início da peça.
+       Fonte dos ícones do desktop (pnpm -C apps/desktop tauri icon icon.svg). -->
+  <rect width="120" height="120" rx="26" fill="#7F1219"/>
+  <path d="M22 100 L26 62 L46 80 L46 100 Z" fill="#F3F4F7"/>
+  <path d="M98 100 L94 62 L74 80 L74 100 Z" fill="#F3F4F7"/>
+  <path d="M60 30 L67 80 L53 80 Z" fill="#F3F4F7"/>
+  <rect x="42" y="80" width="36" height="6" rx="2" fill="#F2A93B"/>
+  <rect x="56" y="86" width="8" height="12" fill="#F2A93B"/>
+  <rect x="22" y="100" width="76" height="10" rx="2" fill="#F3F4F7"/>
+  <circle cx="25" cy="47" r="7" fill="#F2A93B"/>
+  <circle cx="28.5" cy="44.5" r="6" fill="#7F1219"/>
+  <circle cx="60" cy="16" r="7" fill="#F2A93B"/>
+  <circle cx="63.5" cy="13.5" r="6" fill="#7F1219"/>
+  <circle cx="95" cy="47" r="7" fill="#F2A93B"/>
+  <circle cx="98.5" cy="44.5" r="6" fill="#7F1219"/>
+</svg>
