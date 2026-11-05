@@ -15,7 +15,7 @@ export const CHARACTER_COLORS = [
 
 export class CharacterError extends Error {
   constructor(
-    readonly code: 'empty-name' | 'duplicate-name' | 'not-found' | 'has-speeches',
+    readonly code: 'empty-name' | 'duplicate-name' | 'not-found' | 'has-speeches' | 'invalid-color',
     message: string,
   ) {
     super(message);
@@ -76,6 +76,16 @@ export function renameCharacter(play: Play, id: Id, name: string): Play {
   return {
     ...play,
     characters: play.characters.map((c) => (c.id === id ? { ...c, name: cleaned } : c)),
+  };
+}
+
+/** Troca a cor de fita do personagem. Aceita qualquer cor em hexadecimal (#RRGGBB). */
+export function setCharacterColor(play: Play, id: Id, color: string): Play {
+  if (!findCharacter(play, id)) throw new CharacterError('not-found', 'Personagem não encontrado.');
+  if (!/^#[0-9a-f]{6}$/i.test(color)) throw new CharacterError('invalid-color', `Cor inválida: ${color}.`);
+  return {
+    ...play,
+    characters: play.characters.map((c) => (c.id === id ? { ...c, color: color.toUpperCase() } : c)),
   };
 }
 

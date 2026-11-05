@@ -7,6 +7,7 @@ import {
   findCharacterByName,
   removeCharacter,
   renameCharacter,
+  setCharacterColor,
   suggestCharacters,
 } from './characters';
 import { newId } from './ids';
@@ -83,6 +84,22 @@ describe('renameCharacter', () => {
   it('recusa nome de outro personagem', () => {
     const play = playWith('Macbeth', 'Banquo');
     expect(() => renameCharacter(play, play.characters[1]!.id, 'macbeth')).toThrow(/Já existe/);
+  });
+});
+
+describe('setCharacterColor', () => {
+  it('troca a cor só do personagem indicado', () => {
+    const play = playWith('Macbeth', 'Banquo');
+    const [macbeth, banquo] = play.characters;
+    const result = setCharacterColor(play, macbeth!.id, '#7b5bd6');
+
+    expect(result.characters[0]).toMatchObject({ id: macbeth!.id, color: '#7B5BD6' });
+    expect(result.characters[1]).toEqual(banquo);
+  });
+
+  it('recusa cor fora do formato #RRGGBB', () => {
+    const play = playWith('Macbeth');
+    expect(() => setCharacterColor(play, play.characters[0]!.id, 'azul')).toThrow(CharacterError);
   });
 });
 
