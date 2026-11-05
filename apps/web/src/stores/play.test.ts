@@ -160,3 +160,54 @@ describe('abrir e salvar', () => {
     expect(store.dirty).toBe(true);
   });
 });
+
+describe('folha de rosto e personagens', () => {
+  it('editar a folha de rosto marca a peça como não salva', () => {
+    const store = usePlayStore();
+    store.updateTitlePage({ title: 'Macbeth', author: 'William Shakespeare', subtitle: 'Tragédia' });
+    expect(store.play.titlePage).toEqual({ title: 'Macbeth', author: 'William Shakespeare', subtitle: 'Tragédia' });
+    expect(store.dirty).toBe(true);
+  });
+
+  it('subtítulo vazio sai da folha de rosto', () => {
+    const store = usePlayStore();
+    store.updateTitlePage({ subtitle: 'Tragédia' });
+    store.updateTitlePage({ subtitle: '' });
+    expect(store.play.titlePage).not.toHaveProperty('subtitle');
+  });
+
+  it('personagem cadastrado no painel não é descartado sem falas', () => {
+    const store = usePlayStore();
+    store.addCharacter('Porteiro');
+    typeName(store, 'Macbeth');
+    expect(store.play.characters.map((c) => c.name)).toEqual(['Porteiro', 'Macbeth']);
+  });
+
+  it('renomear um personagem criado pelo editor o torna permanente', () => {
+    const store = usePlayStore();
+    typeName(store, 'Macbet');
+    const id = store.play.characters[0]!.id;
+    store.renameCharacter(id, 'Macbeth');
+    store.applyDoc({ type: 'doc', content: [] });
+
+    expect(store.play.characters).toMatchObject([{ id, name: 'Macbeth' }]);
+  });
+
+  it('troca a cor e remove personagens sem falas', () => {
+    const store = usePlayStore();
+    const porteiro = store.addCharacter('Porteiro');
+    store.setCharacterColor(porteiro.id, '#1AA6B7');
+    expect(store.play.characters[0]?.color).toBe('#1AA6B7');
+
+    store.removeCharacter(porteiro.id);
+    expect(store.play.characters).toEqual([]);
+  });
+
+  it('nome repetido chega como erro e não muda a peça', () => {
+    const store = usePlayStore();
+    store.addCharacter('Banquo');
+    const before = store.play;
+    expect(() => store.addCharacter('banquo')).toThrow(/Já existe/);
+    expect(store.play).toBe(before);
+  });
+});

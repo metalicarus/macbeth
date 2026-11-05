@@ -1,4 +1,17 @@
-import { countSpeeches, createPlay, readMbth, writeMbth, type Id, type Play } from '@macbeth/core';
+import {
+  addCharacter as addToCast,
+  countSpeeches,
+  createPlay,
+  readMbth,
+  removeCharacter as removeFromCast,
+  renameCharacter as renameInCast,
+  setCharacterColor as recolorInCast,
+  writeMbth,
+  type Character,
+  type Id,
+  type Play,
+  type TitlePage,
+} from '@macbeth/core';
 import type { JSONContent } from '@tiptap/core';
 import { defineStore } from 'pinia';
 import { ref, shallowRef } from 'vue';
@@ -85,5 +98,57 @@ export const usePlayStore = defineStore('play', () => {
     dirty.value = true;
   }
 
-  return { play, fileName, dirty, revision, newPlay, open, save, applyDoc };
+  function change(next: Play) {
+    play.value = next;
+    dirty.value = true;
+  }
+
+  /** Campos vazios do subtítulo saem do arquivo, em vez de ficarem como texto vazio. */
+  function updateTitlePage(patch: Partial<TitlePage>) {
+    const titlePage = { ...play.value.titlePage, ...patch };
+    if (!titlePage.subtitle) delete titlePage.subtitle;
+    change({ ...play.value, titlePage });
+  }
+
+  /*
+   * Ações do painel de personagens. Quem passa por aqui é intencional: deixa
+   * de ser candidato a descarte mesmo que fique sem falas. Erros de nome
+   * (vazio, repetido) chegam como CharacterError.
+   */
+  function addCharacter(name: string): Character {
+    const added = addToCast(play.value, name);
+    change(added.play);
+    return added.character;
+  }
+
+  function renameCharacter(id: Id, name: string) {
+    change(renameInCast(play.value, id, name));
+    autoCreated.delete(id);
+  }
+
+  function setCharacterColor(id: Id, color: string) {
+    change(recolorInCast(play.value, id, color));
+    autoCreated.delete(id);
+  }
+
+  function removeCharacter(id: Id) {
+    change(removeFromCast(play.value, id));
+    autoCreated.delete(id);
+  }
+
+  return {
+    play,
+    fileName,
+    dirty,
+    revision,
+    newPlay,
+    open,
+    save,
+    applyDoc,
+    updateTitlePage,
+    addCharacter,
+    renameCharacter,
+    setCharacterColor,
+    removeCharacter,
+  };
 });
