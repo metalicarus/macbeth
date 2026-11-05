@@ -53,5 +53,18 @@
     "subtitlePlaceholder": "A tragedy in five acts",
     "authorPlaceholder": "William Shakespeare",
     "titlePageHint": "With a title, the PDF gets a title page, and the title becomes the suggested file name."
+  },
+  "cast": {
+    "title": "Characters",
+    "empty": "Characters show up here when you write a name in a line. You can also add them ahead, below.",
+    "add": "New character",
+    "addPlaceholder": "Lady Macbeth",
+    "name": "Name of {name}",
+    "color": "Color of {name}",
+    "remove": "Remove {name}",
+    "errors": {
+      "empty-name": "The name can't be empty.",
+      "duplicate-name": "There's already a character with that name."
+    }
   }
 }
