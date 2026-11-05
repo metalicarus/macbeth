@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
+import { UndoRedo } from '@tiptap/extensions/undo-redo';
+import { EditorState } from '@tiptap/pm/state';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -29,6 +31,7 @@ const PLACEHOLDER_KEYS: Record<string, string> = {
 const editor = useEditor({
   extensions: [
     ...playExtensions,
+    UndoRedo,
     UniqueIds,
     PlayKeymap,
     CueSuggest.configure({
@@ -53,10 +56,16 @@ const editor = useEditor({
   onUpdate: ({ editor }) => store.applyDoc(editor.getJSON()),
 });
 
-// Outra peça foi aberta (ou uma nova criada): o editor passa a mostrá-la.
+// Outra peça foi aberta (ou uma nova criada): o editor passa a mostrá-la, com o
+// histórico zerado, para que Ctrl+Z não tente desfazer edições da peça anterior.
 watch(
   () => store.revision,
-  () => editor.value?.commands.setContent(playToDoc(store.play), { emitUpdate: false }),
+  () => {
+    const ed = editor.value;
+    if (!ed) return;
+    const doc = ed.schema.nodeFromJSON(playToDoc(store.play));
+    ed.view.updateState(EditorState.create({ doc, plugins: ed.state.plugins }));
+  },
 );
 
 onBeforeUnmount(() => editor.value?.destroy());
