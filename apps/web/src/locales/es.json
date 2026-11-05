@@ -42,5 +42,16 @@
   "print": {
     "continues": "(continúa)",
     "continued": "(cont.)"
+  },
+  "panel": {
+    "toggle": "Obra",
+    "titlePage": "Portada",
+    "title": "Título",
+    "subtitle": "Subtítulo",
+    "author": "Autoría",
+    "titlePlaceholder": "Macbeth",
+    "subtitlePlaceholder": "Tragedia en cinco actos",
+    "authorPlaceholder": "William Shakespeare",
+    "titlePageHint": "Con título, el PDF tiene portada y el título se usa como nombre sugerido del archivo."
   }
 }

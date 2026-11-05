@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 export type Look = 'papel' | 'coxia';
 
 const LOOK_KEY = 'macbeth.look';
+const PANEL_KEY = 'macbeth.panel';
 
 function initialLook(): Look {
   try {
@@ -15,8 +16,18 @@ function initialLook(): Look {
   return matchMedia('(prefers-color-scheme: dark)').matches ? 'coxia' : 'papel';
 }
 
+function initialPanel(): boolean {
+  try {
+    return localStorage.getItem(PANEL_KEY) !== 'closed';
+  } catch {
+    return true;
+  }
+}
+
 export const usePreferences = defineStore('preferences', () => {
   const look = ref<Look>(initialLook());
+  /** O painel lateral "Peça" está aberto. */
+  const panelOpen = ref(initialPanel());
 
   watch(
     look,
@@ -31,5 +42,13 @@ export const usePreferences = defineStore('preferences', () => {
     { immediate: true },
   );
 
-  return { look };
+  watch(panelOpen, (open) => {
+    try {
+      localStorage.setItem(PANEL_KEY, open ? 'open' : 'closed');
+    } catch {
+      // A escolha vale só para esta sessão.
+    }
+  });
+
+  return { look, panelOpen };
 });

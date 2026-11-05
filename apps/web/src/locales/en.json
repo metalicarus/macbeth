@@ -42,5 +42,16 @@
   "print": {
     "continues": "(continued)",
     "continued": "(cont'd)"
+  },
+  "panel": {
+    "toggle": "Play",
+    "titlePage": "Title page",
+    "title": "Title",
+    "subtitle": "Subtitle",
+    "author": "Author",
+    "titlePlaceholder": "Macbeth",
+    "subtitlePlaceholder": "A tragedy in five acts",
+    "authorPlaceholder": "William Shakespeare",
+    "titlePageHint": "With a title, the PDF gets a title page, and the title becomes the suggested file name."
   }
 }

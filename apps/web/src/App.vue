@@ -4,10 +4,13 @@ import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
 import PlayEditor from './components/PlayEditor.vue';
+import PlayPanel from './components/PlayPanel.vue';
 import { usePlayStore } from './stores/play';
+import { usePreferences } from './stores/preferences';
 
 const { t } = useI18n();
 const { play, fileName, dirty } = storeToRefs(usePlayStore());
+const { panelOpen } = storeToRefs(usePreferences());
 </script>
 
 <template>
@@ -21,10 +24,16 @@ const { play, fileName, dirty } = storeToRefs(usePlayStore());
       <span class="spacer"></span>
       <FileActions />
       <LookToggle />
+      <button type="button" class="panel-toggle" :aria-pressed="panelOpen" @click="panelOpen = !panelOpen">
+        {{ t('panel.toggle') }}
+      </button>
     </header>
-    <main class="desk">
-      <PlayEditor />
-    </main>
+    <div class="body" :class="{ 'with-panel': panelOpen }">
+      <main class="desk">
+        <PlayEditor />
+      </main>
+      <PlayPanel v-if="panelOpen" />
+    </div>
   </div>
 </template>
 
@@ -74,6 +83,29 @@ const { play, fileName, dirty } = storeToRefs(usePlayStore());
 
 .spacer {
   flex: 1;
+}
+
+.panel-toggle {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.panel-toggle[aria-pressed='true'] {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.body.with-panel {
+  grid-template-columns: minmax(0, 1fr) 280px;
 }
 
 .desk {
