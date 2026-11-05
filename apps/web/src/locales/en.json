@@ -37,7 +37,8 @@
       "invalid-structure": "The structure of the play in this file is damaged.",
       "generic": "The operation could not be completed: {detail}"
     },
-    "exportPdf": "Export PDF"
+    "exportPdf": "Export PDF",
+    "confirmClose": "The play has unsaved changes. Close anyway?"
   },
   "print": {
     "continues": "(continued)",

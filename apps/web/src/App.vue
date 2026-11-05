@@ -1,16 +1,25 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
+import { guardUnsavedClose } from './files/close-guard';
 import { usePlayStore } from './stores/play';
 import { usePreferences } from './stores/preferences';
 
 const { t } = useI18n();
 const { play, fileName, dirty } = storeToRefs(usePlayStore());
 const { panelOpen } = storeToRefs(usePreferences());
+
+onMounted(() =>
+  guardUnsavedClose(
+    () => dirty.value,
+    () => t('file.confirmClose'),
+  ),
+);
 </script>
 
 <template>

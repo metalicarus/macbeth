@@ -37,7 +37,8 @@
       "invalid-structure": "La estructura de la obra en este archivo está dañada.",
       "generic": "No se pudo completar la operación: {detail}"
     },
-    "exportPdf": "Exportar PDF"
+    "exportPdf": "Exportar PDF",
+    "confirmClose": "La obra tiene cambios sin guardar. ¿Cerrar de todos modos?"
   },
   "print": {
     "continues": "(continúa)",

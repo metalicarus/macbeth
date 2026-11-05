@@ -37,7 +37,8 @@
       "invalid-structure": "A estrutura da peça neste arquivo está danificada.",
       "generic": "Não foi possível concluir a operação: {detail}"
     },
-    "exportPdf": "Exportar PDF"
+    "exportPdf": "Exportar PDF",
+    "confirmClose": "A peça tem alterações que não foram salvas. Fechar mesmo assim?"
   },
   "print": {
     "continues": "(continua)",
