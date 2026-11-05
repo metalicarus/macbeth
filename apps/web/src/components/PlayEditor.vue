@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
 import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
 import { PlayKeymap } from '../editor/keymap';
+import { renameCues } from '../editor/rename';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
 import { usePlayStore } from '../stores/play';
@@ -65,6 +66,22 @@ watch(
     if (!ed) return;
     const doc = ed.schema.nodeFromJSON(playToDoc(store.play));
     ed.view.updateState(EditorState.create({ doc, plugins: ed.state.plugins }));
+  },
+);
+
+// Personagem renomeado no painel: o nome muda em todas as falas dele no texto.
+let names = new Map(store.play.characters.map((c) => [c.id, c.name]));
+watch(
+  () => store.play.characters,
+  (characters) => {
+    const previous = names;
+    names = new Map(characters.map((c) => [c.id, c.name]));
+    const ed = editor.value;
+    if (!ed) return;
+    for (const c of characters) {
+      const old = previous.get(c.id);
+      if (old !== undefined && old !== c.name) renameCues(ed.state, ed.view.dispatch, c.id, old, c.name);
+    }
   },
 );
 
