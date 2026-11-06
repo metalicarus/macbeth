@@ -7,3 +7,4 @@ export * from './layout';
 export * from './lines';
 export * from './mbth';
 export * from './model';
+export * from './structure';
