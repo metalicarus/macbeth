@@ -101,6 +101,27 @@ describe('readMbth com arquivos ruins', () => {
     expectCode(() => readMbth(zipWithPlay(play)), 'invalid-structure');
   });
 
+  it('aceita cortes e notas e os mantém na ida e volta', () => {
+    const play = samplePlay();
+    const speech = play.acts[0]!.scenes[0]!.elements[1]!;
+    speech.cuts = [{ from: 4, to: 8 }];
+    speech.notes = [{ id: 'n1', text: 'Pausa longa.', createdAt: '2026-11-05T10:00:00.000Z', resolved: true }];
+
+    expect(readMbth(writeMbth({ play, extras: {} })).play).toEqual(play);
+  });
+
+  it('recusa corte com posição que não é número inteiro', () => {
+    const play = samplePlay() as unknown as { acts: { scenes: { elements: Record<string, unknown>[] }[] }[] };
+    play.acts[0]!.scenes[0]!.elements[1]!.cuts = [{ from: 'início', to: 3 }];
+    expect(() => readMbth(zipWithPlay(play))).toThrow('cuts[0].from');
+  });
+
+  it('recusa nota sem texto', () => {
+    const play = samplePlay() as unknown as { acts: { scenes: { elements: Record<string, unknown>[] }[] }[] };
+    play.acts[0]!.scenes[0]!.elements[0]!.notes = [{ id: 'n1', createdAt: '2026-11-05' }];
+    expect(() => readMbth(zipWithPlay(play))).toThrow('notes[0].text');
+  });
+
   it('aponta o caminho do campo inválido', () => {
     const play = samplePlay() as unknown as { titlePage: { title: unknown } };
     play.titlePage.title = 42;

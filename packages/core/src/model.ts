@@ -21,18 +21,44 @@ export interface Character {
   description?: string;
 }
 
-export interface StageDirection {
+/**
+ * Trecho cortado do texto de uma fala ou rubrica: posições de caracteres,
+ * do início (inclusive) ao fim (exclusive). O texto continua guardado; o
+ * corte só o esconde do PDF e, se a pessoa quiser, da tela.
+ */
+export interface TextRange {
+  from: number;
+  to: number;
+}
+
+/** Nota pessoal presa a uma fala ou rubrica. */
+export interface Note {
+  id: Id;
+  text: string;
+  /** Data de criação, em ISO 8601. */
+  createdAt: string;
+  resolved?: boolean;
+}
+
+/** Camadas por cima do texto, que nunca o alteram. */
+interface Annotated {
+  cuts?: TextRange[];
+  notes?: Note[];
+}
+
+export interface StageDirection extends Annotated {
   id: Id;
   type: 'direction';
   text: string;
 }
 
-export interface Speech {
+export interface Speech extends Annotated {
   id: Id;
   type: 'speech';
   characterId: Id;
   /** Indicação curta antes da fala, como "(baixo)" ou "(para Banquo)". */
   parenthetical?: string;
+  /** Os cortes (`cuts`) valem sobre este texto. */
   text: string;
 }
 

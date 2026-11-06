@@ -1,3 +1,4 @@
+export * from './annotations';
 export * from './characters';
 export * from './ids';
 export * from './import/builder';

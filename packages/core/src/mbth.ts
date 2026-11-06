@@ -75,6 +75,32 @@ function str(o: Obj, key: string, path: string, optional = false): void {
   if (typeof value !== 'string') fail(`${path}.${key}`, 'um texto');
 }
 
+function int(o: Obj, key: string, path: string): void {
+  const value = o[key];
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) fail(`${path}.${key}`, 'um número inteiro');
+}
+
+/** Cortes e notas são opcionais; quando existem, precisam ter o formato certo. */
+function validateAnnotations(element: Obj, path: string): void {
+  if (element.cuts !== undefined) {
+    arr(element.cuts, `${path}.cuts`).forEach((item, c) => {
+      const cut = obj(item, `${path}.cuts[${c}]`);
+      int(cut, 'from', `${path}.cuts[${c}]`);
+      int(cut, 'to', `${path}.cuts[${c}]`);
+    });
+  }
+  if (element.notes !== undefined) {
+    arr(element.notes, `${path}.notes`).forEach((item, n) => {
+      const notePath = `${path}.notes[${n}]`;
+      const note = obj(item, notePath);
+      str(note, 'id', notePath);
+      str(note, 'text', notePath);
+      str(note, 'createdAt', notePath);
+      if (note.resolved !== undefined && typeof note.resolved !== 'boolean') fail(`${notePath}.resolved`, 'verdadeiro ou falso');
+    });
+  }
+}
+
 export function validatePlay(data: unknown): Play {
   const play = obj(data, 'peça');
 
@@ -134,6 +160,7 @@ export function validatePlay(data: unknown): Play {
         } else if (element.type !== 'direction') {
           fail(`${path}.type`, '"speech" ou "direction"');
         }
+        validateAnnotations(element, path);
       });
     });
   });
