@@ -4,6 +4,7 @@ import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
+import NoticeBar from './components/NoticeBar.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
 import { guardUnsavedClose } from './files/close-guard';
@@ -38,6 +39,7 @@ onMounted(() =>
       </button>
     </header>
     <div class="body" :class="{ 'with-panel': panelOpen }">
+      <NoticeBar />
       <main class="desk">
         <PlayEditor />
       </main>
@@ -108,6 +110,7 @@ onMounted(() =>
 }
 
 .body {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-height: 0;

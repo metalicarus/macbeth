@@ -67,5 +67,20 @@
       "empty-name": "The name can't be empty.",
       "duplicate-name": "There's already a character with that name."
     }
+  },
+  "import": {
+    "button": "Import",
+    "summary": "Play imported: {acts}, {scenes}, {characters} and {speeches}. Check it and save as .mbth.",
+    "acts": "no acts | 1 act | {n} acts",
+    "scenes": "no scenes | 1 scene | {n} scenes",
+    "characters": "no characters | 1 character | {n} characters",
+    "speeches": "no lines | 1 line | {n} lines",
+    "errors": {
+      "unsupported": "This format can't be imported. Use .docx, .odt or Fountain.",
+      "unreadable": "The file couldn't be read. It may be corrupted or password protected."
+    }
+  },
+  "notice": {
+    "dismiss": "Dismiss"
   }
 }

@@ -67,5 +67,20 @@
       "empty-name": "El nombre no puede quedar vacío.",
       "duplicate-name": "Ya existe un personaje con ese nombre."
     }
+  },
+  "import": {
+    "button": "Importar",
+    "summary": "Obra importada: {acts}, {scenes}, {characters} y {speeches}. Revísala y guárdala como .mbth.",
+    "acts": "ningún acto | 1 acto | {n} actos",
+    "scenes": "ninguna escena | 1 escena | {n} escenas",
+    "characters": "ningún personaje | 1 personaje | {n} personajes",
+    "speeches": "ningún parlamento | 1 parlamento | {n} parlamentos",
+    "errors": {
+      "unsupported": "Este formato no se puede importar. Usa .docx, .odt o Fountain.",
+      "unreadable": "No se pudo leer el archivo. Puede estar dañado o protegido con contraseña."
+    }
+  },
+  "notice": {
+    "dismiss": "Cerrar aviso"
   }
 }

@@ -4,12 +4,15 @@ import { onBeforeUnmount, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { fileProvider, PDF_FILE, suggestedFileName } from '../files';
 import { alertDialog, confirmDialog } from '../files/dialogs';
+import { ImportError } from '../import';
 import { scriptFonts } from '../print/fonts';
 import { playToPdf } from '../print/pdf';
+import { useNotice } from '../stores/notice';
 import { usePlayStore } from '../stores/play';
 
 const { t } = useI18n();
 const store = usePlayStore();
+const notice = useNotice();
 
 async function discardChanges(): Promise<boolean> {
   return !store.dirty || confirmDialog(t('file.confirmDiscard'));
@@ -22,7 +25,9 @@ async function run(action: () => Promise<unknown>): Promise<void> {
     const text =
       error instanceof MbthError
         ? t(`file.errors.${error.code}`)
-        : t('file.errors.generic', { detail: error instanceof Error ? error.message : String(error) });
+        : error instanceof ImportError
+          ? t(`import.errors.${error.code}`)
+          : t('file.errors.generic', { detail: error instanceof Error ? error.message : String(error) });
     await alertDialog(text);
   }
 }
@@ -30,6 +35,21 @@ async function run(action: () => Promise<unknown>): Promise<void> {
 const newPlay = () => run(async () => (await discardChanges()) && store.newPlay());
 const open = () => run(async () => (await discardChanges()) && store.open());
 const save = (as = false) => run(() => store.save(t('app.untitled'), as));
+
+const importFile = () =>
+  run(async () => {
+    if (!(await discardChanges())) return;
+    const summary = await store.importFrom();
+    if (!summary) return;
+    notice.show(
+      t('import.summary', {
+        acts: t('import.acts', summary.acts),
+        scenes: t('import.scenes', summary.scenes),
+        characters: t('import.characters', summary.characters),
+        speeches: t('import.speeches', summary.speeches),
+      }),
+    );
+  });
 
 const exportPdf = () =>
   run(async () => {
@@ -47,6 +67,7 @@ function onKeydown(event: KeyboardEvent) {
   const actions: Record<string, () => void> = {
     n: newPlay,
     o: open,
+    i: importFile,
     s: () => save(event.shiftKey),
     p: exportPdf,
   };
@@ -64,6 +85,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   <div class="actions">
     <button type="button" :title="`${t('file.new')} (Ctrl+N)`" @click="newPlay">{{ t('file.new') }}</button>
     <button type="button" :title="`${t('file.open')} (Ctrl+O)`" @click="open">{{ t('file.open') }}</button>
+    <button type="button" :title="`${t('import.button')} .docx, .odt, Fountain (Ctrl+I)`" @click="importFile">
+      {{ t('import.button') }}
+    </button>
     <button type="button" :title="`${t('file.exportPdf')} (Ctrl+P)`" @click="exportPdf">{{ t('file.exportPdf') }}</button>
     <button
       type="button"
