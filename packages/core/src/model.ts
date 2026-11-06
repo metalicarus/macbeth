@@ -10,6 +10,21 @@ export interface TitlePage {
   title: string;
   author: string;
   subtitle?: string;
+  /**
+   * Língua em que a peça está escrita (código BCP 47, como "pt-BR" ou "es").
+   * Vale para o corretor ortográfico e para pôr nomes em maiúsculas. Ausente
+   * em arquivos antigos: nesse caso, português do Brasil.
+   */
+  language?: string;
+}
+
+export const DEFAULT_PLAY_LANGUAGE = 'pt-BR';
+
+/** Línguas oferecidas no painel; o arquivo aceita qualquer código BCP 47. */
+export const PLAY_LANGUAGES = ['pt-BR', 'pt-PT', 'es', 'en', 'fr', 'it', 'de'] as const;
+
+export function playLanguage(play: Play): string {
+  return play.titlePage.language || DEFAULT_PLAY_LANGUAGE;
 }
 
 /** O personagem é um cadastro. As falas apontam para ele pelo id. */

@@ -128,3 +128,18 @@ describe('readMbth com arquivos ruins', () => {
     expect(() => readMbth(zipWithPlay(play))).toThrow('peça.titlePage.title');
   });
 });
+
+describe('idioma da peça no arquivo', () => {
+  it('guarda o idioma e aceita arquivos antigos sem ele', () => {
+    const play = samplePlay();
+    play.titlePage.language = 'es';
+    expect(readMbth(writeMbth({ play, extras: {} })).play.titlePage.language).toBe('es');
+    expect(readMbth(writeMbth({ play: samplePlay(), extras: {} })).play.titlePage).not.toHaveProperty('language');
+  });
+
+  it('recusa idioma que não é texto', () => {
+    const play = samplePlay() as unknown as { titlePage: Record<string, unknown> };
+    play.titlePage.language = 42;
+    expect(() => readMbth(zipWithPlay(play))).toThrow('titlePage.language');
+  });
+});

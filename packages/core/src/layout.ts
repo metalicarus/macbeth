@@ -1,5 +1,5 @@
 import { isFullyCut, splitByCuts, textWithoutCuts } from './annotations';
-import type { Play, SceneElement, Speech } from './model';
+import { playLanguage, type Play, type SceneElement, type Speech } from './model';
 
 /*
  * Paginação da peça para impressão, na formatação Em linha.
@@ -52,7 +52,7 @@ interface Block {
   pageBreak?: boolean;
   /** Não pode ficar no pé da página sem o começo do bloco seguinte. */
   keepWithNext?: boolean;
-  /** Nome do personagem, para continuar a fala na página seguinte. */
+  /** Nome do personagem (em maiúsculas), para continuar a fala na página seguinte. */
   speaker?: string;
 }
 
@@ -119,11 +119,12 @@ function textSpans(element: SceneElement, cuts: 'omit' | 'strike', italic: boole
   }));
 }
 
+/** `speaker` já vem em maiúsculas, na língua da peça. */
 function speechSpans(speech: Speech, speaker: string, cuts: 'omit' | 'strike'): Span[] {
   // Na cópia da direção, a fala cortada inteira sai riscada também no nome.
   const struck = cuts === 'strike' && isFullyCut(speech) ? { struck: true } : {};
   return [
-    { text: speaker.toLocaleUpperCase('pt-BR'), bold: true, ...struck },
+    { text: speaker, bold: true, ...struck },
     { text: ' – ', ...struck },
     ...(speech.parenthetical ? [{ text: `(${speech.parenthetical})`, italic: true, ...struck }, { text: ' ', ...struck }] : []),
     ...textSpans(speech, cuts, false),
@@ -131,13 +132,15 @@ function speechSpans(speech: Speech, speaker: string, cuts: 'omit' | 'strike'): 
 }
 
 function blocksOf(play: Play, width: number, cuts: 'omit' | 'strike'): Block[] {
+  const language = playLanguage(play);
+  const upper = (text: string) => text.toLocaleUpperCase(language);
   const names = new Map(play.characters.map((c) => [c.id, c.name]));
   const blocks: Block[] = [];
 
   play.acts.forEach((act, a) => {
     if (act.title) {
       blocks.push({
-        lines: wrap([{ text: act.title.toLocaleUpperCase('pt-BR'), bold: true }], width, 'center'),
+        lines: wrap([{ text: upper(act.title), bold: true }], width, 'center'),
         pageBreak: a > 0,
         keepWithNext: true,
       });
@@ -155,7 +158,7 @@ function blocksOf(play: Play, width: number, cuts: 'omit' | 'strike'): Block[] {
           const spans = [{ text: '(', italic: true }, ...textSpans(element, cuts, true), { text: ')', italic: true }];
           blocks.push({ lines: wrap(spans, width) });
         } else {
-          const speaker = names.get(element.characterId) ?? '';
+          const speaker = upper(names.get(element.characterId) ?? '');
           blocks.push({ lines: wrap(speechSpans(element, speaker, cuts), width), speaker });
         }
       }
@@ -170,7 +173,7 @@ function titlePage(play: Play, options: LayoutOptions): LaidOutPage | null {
   if (!title) return null;
   const width = options.charsPerLine;
   const lines: Line[] = [
-    ...wrap([{ text: title.toLocaleUpperCase('pt-BR'), bold: true }], width, 'center'),
+    ...wrap([{ text: title.toLocaleUpperCase(playLanguage(play)), bold: true }], width, 'center'),
     ...(subtitle ? [BLANK, ...wrap([{ text: subtitle }], width, 'center')] : []),
     ...(author ? [BLANK, BLANK, ...wrap([{ text: author }], width, 'center')] : []),
   ];
@@ -222,7 +225,7 @@ export function layoutPlay(play: Play, options: LayoutOptions): LaidOutPage[] {
       lines = lines.slice(room);
       newPage();
       if (block.speaker) {
-        page.push({ spans: [{ text: `${block.speaker.toLocaleUpperCase('pt-BR')} ${labels.continued}`, bold: true }] });
+        page.push({ spans: [{ text: `${block.speaker} ${labels.continued}`, bold: true }] });
       }
     } else {
       newPage();

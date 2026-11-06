@@ -188,3 +188,14 @@ describe('cortes na paginação', () => {
     expect(banquo.spans.every((s) => s.struck)).toBe(true);
   });
 });
+
+describe('idioma da peça na paginação', () => {
+  it('põe os nomes em maiúsculas segundo a língua da peça', () => {
+    // Em turco, "i" minúsculo vira "İ" com ponto.
+    const base = playWith(['Kiral'], (c) => [speech(c.Kiral!, 'Merhaba.')]);
+    const turkish = { ...base, titlePage: { ...base.titlePage, language: 'tr' } };
+
+    expect(pageTexts(layoutPlay(base, options({ charsPerLine: 60 }))[0]!)).toContain('KIRAL – Merhaba.');
+    expect(pageTexts(layoutPlay(turkish, options({ charsPerLine: 60 }))[0]!)).toContain('KİRAL – Merhaba.');
+  });
+});

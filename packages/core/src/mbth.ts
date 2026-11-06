@@ -119,6 +119,7 @@ export function validatePlay(data: unknown): Play {
   str(titlePage, 'title', 'peça.titlePage');
   str(titlePage, 'author', 'peça.titlePage');
   str(titlePage, 'subtitle', 'peça.titlePage', true);
+  str(titlePage, 'language', 'peça.titlePage', true);
 
   const characterIds = new Set<string>();
   arr(play.characters, 'peça.characters').forEach((item, i) => {

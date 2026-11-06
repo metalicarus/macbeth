@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPlay, SCHEMA_VERSION } from './model';
+import { createPlay, playLanguage, SCHEMA_VERSION } from './model';
 
 describe('createPlay', () => {
   it('começa com um ato e uma cena vazia', () => {
@@ -19,5 +19,12 @@ describe('createPlay', () => {
 
     expect(a.acts[0]?.id).not.toBe(b.acts[0]?.id);
     expect(a.acts[0]?.scenes[0]?.id).not.toBe(b.acts[0]?.scenes[0]?.id);
+  });
+});
+
+describe('playLanguage', () => {
+  it('usa o idioma da folha de rosto, ou português do Brasil se não houver', () => {
+    expect(playLanguage(createPlay())).toBe('pt-BR');
+    expect(playLanguage(createPlay({ language: 'fr' }))).toBe('fr');
   });
 });
