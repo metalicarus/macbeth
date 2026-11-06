@@ -43,7 +43,12 @@
       "generic": "Não foi possível concluir a operação: {detail}"
     },
     "exportPdf": "Exportar PDF",
-    "confirmClose": "A peça tem alterações que não foram salvas. Fechar mesmo assim?"
+    "confirmClose": "A peça tem alterações que não foram salvas. Fechar mesmo assim?",
+    "exportShow": "PDF do espetáculo",
+    "exportShowHint": "Sem os trechos cortados (Ctrl+P)",
+    "exportDirector": "PDF da direção",
+    "exportDirectorHint": "Com os cortes riscados (Ctrl+Shift+P)",
+    "directorSuffix": "direção"
   },
   "print": {
     "continues": "(continua)",

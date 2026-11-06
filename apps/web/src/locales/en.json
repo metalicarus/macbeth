@@ -43,7 +43,12 @@
       "generic": "The operation could not be completed: {detail}"
     },
     "exportPdf": "Export PDF",
-    "confirmClose": "The play has unsaved changes. Close anyway?"
+    "confirmClose": "The play has unsaved changes. Close anyway?",
+    "exportShow": "Performance PDF",
+    "exportShowHint": "Without the cut text (Ctrl+P)",
+    "exportDirector": "Director's PDF",
+    "exportDirectorHint": "With the cuts struck through (Ctrl+Shift+P)",
+    "directorSuffix": "director"
   },
   "print": {
     "continues": "(continued)",

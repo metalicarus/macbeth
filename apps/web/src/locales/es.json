@@ -43,7 +43,12 @@
       "generic": "No se pudo completar la operación: {detail}"
     },
     "exportPdf": "Exportar PDF",
-    "confirmClose": "La obra tiene cambios sin guardar. ¿Cerrar de todos modos?"
+    "confirmClose": "La obra tiene cambios sin guardar. ¿Cerrar de todos modos?",
+    "exportShow": "PDF del espectáculo",
+    "exportShowHint": "Sin los fragmentos cortados (Ctrl+P)",
+    "exportDirector": "PDF de la dirección",
+    "exportDirectorHint": "Con los cortes tachados (Ctrl+Shift+P)",
+    "directorSuffix": "dirección"
   },
   "print": {
     "continues": "(continúa)",

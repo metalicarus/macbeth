@@ -38,6 +38,18 @@ describe('playToPdf', () => {
     expect(pdf.getAuthor()).toBe('William Shakespeare');
   });
 
+  it('a cópia da direção sai maior que a do espetáculo quando há cortes', async () => {
+    const play = sample(3);
+    const speech = play.acts[0]!.scenes[0]!.elements[0]!;
+    speech.cuts = [{ from: 0, to: speech.text.length }];
+
+    const show = await PDFDocument.load(await playToPdf(play, fonts, labels));
+    const director = await PDFDocument.load(await playToPdf(play, fonts, labels, 'strike'));
+    // A fala cortada inteira some do espetáculo e aparece (riscada) na cópia da direção.
+    const contentSize = async (doc: PDFDocument) => (await doc.save()).length;
+    expect(await contentSize(director)).toBeGreaterThan(await contentSize(show));
+  });
+
   it('peça longa ocupa várias páginas', async () => {
     const pdf = await PDFDocument.load(await playToPdf(sample(120), fonts, labels));
     expect(pdf.getPageCount()).toBeGreaterThan(5);

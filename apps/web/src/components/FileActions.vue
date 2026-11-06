@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { MbthError } from '@macbeth/core';
-import { onBeforeUnmount, onMounted } from 'vue';
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { fileProvider, PDF_FILE, suggestedFileName } from '../files';
 import { alertDialog, confirmDialog } from '../files/dialogs';
@@ -51,14 +52,18 @@ const importFile = () =>
     );
   });
 
-const exportPdf = () =>
+/** Com cortes na peça, o Exportar PDF oferece a versão do espetáculo e a cópia da direção. */
+const hasCuts = computed(() =>
+  store.play.acts.some((act) => act.scenes.some((scene) => scene.elements.some((e) => e.cuts?.length))),
+);
+
+const exportPdf = (cuts: 'omit' | 'strike' = 'omit') =>
   run(async () => {
-    const bytes = await playToPdf(store.play, await scriptFonts(), {
-      continues: t('print.continues'),
-      continued: t('print.continued'),
-    });
+    const labels = { continues: t('print.continues'), continued: t('print.continued') };
+    const bytes = await playToPdf(store.play, await scriptFonts(), labels, cuts);
     const base = store.fileName?.replace(/\.mbth$/i, '') || store.play.titlePage.title || t('app.untitled');
-    await fileProvider().save(bytes, null, suggestedFileName(base, PDF_FILE.extension), PDF_FILE);
+    const name = cuts === 'strike' ? `${base} (${t('file.directorSuffix')})` : base;
+    await fileProvider().save(bytes, null, suggestedFileName(name, PDF_FILE.extension), PDF_FILE);
   });
 
 function onKeydown(event: KeyboardEvent) {
@@ -69,7 +74,7 @@ function onKeydown(event: KeyboardEvent) {
     o: open,
     i: importFile,
     s: () => save(event.shiftKey),
-    p: exportPdf,
+    p: () => exportPdf(event.shiftKey ? 'strike' : 'omit'),
   };
   const action = actions[key];
   if (!action) return;
@@ -88,7 +93,26 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
     <button type="button" :title="`${t('import.button')} .docx, .odt, Fountain (Ctrl+I)`" @click="importFile">
       {{ t('import.button') }}
     </button>
-    <button type="button" :title="`${t('file.exportPdf')} (Ctrl+P)`" @click="exportPdf">{{ t('file.exportPdf') }}</button>
+    <DropdownMenuRoot v-if="hasCuts">
+      <DropdownMenuTrigger as-child>
+        <button type="button">{{ t('file.exportPdf') }} ▾</button>
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent class="export-menu" align="end" :side-offset="6">
+          <DropdownMenuItem class="export-menu-item" @select="exportPdf('omit')">
+            <span>{{ t('file.exportShow') }}</span>
+            <small>{{ t('file.exportShowHint') }}</small>
+          </DropdownMenuItem>
+          <DropdownMenuItem class="export-menu-item" @select="exportPdf('strike')">
+            <span>{{ t('file.exportDirector') }}</span>
+            <small>{{ t('file.exportDirectorHint') }}</small>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenuRoot>
+    <button v-else type="button" :title="`${t('file.exportPdf')} (Ctrl+P)`" @click="exportPdf()">
+      {{ t('file.exportPdf') }}
+    </button>
     <button
       type="button"
       class="primary"
@@ -123,5 +147,38 @@ button.primary {
   background: var(--accent);
   color: var(--accent-ink);
   font-weight: 600;
+}
+</style>
+
+<!-- O menu é desenhado fora do componente (portal), onde estilos com escopo não chegam. -->
+<style>
+.export-menu {
+  z-index: 30;
+  min-width: 240px;
+  padding: 4px;
+  background: var(--page);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 35%);
+}
+
+.export-menu-item {
+  display: grid;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+}
+
+.export-menu-item[data-highlighted] {
+  background: var(--accent-soft);
+}
+
+.export-menu-item small {
+  font-size: 11.5px;
+  color: var(--muted);
 }
 </style>

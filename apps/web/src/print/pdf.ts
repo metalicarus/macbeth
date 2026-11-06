@@ -24,7 +24,16 @@ const FONT_SIZE = 12;
 const LEADING = 12;
 const INK = rgb(0.08, 0.08, 0.1);
 
-export async function playToPdf(play: Play, fonts: FontFiles, labels: LayoutOptions['labels']): Promise<Uint8Array> {
+/**
+ * `cuts`: 'omit' gera a versão do espetáculo (sem os trechos cortados);
+ * 'strike', a cópia da direção, com os cortes riscados.
+ */
+export async function playToPdf(
+  play: Play,
+  fonts: FontFiles,
+  labels: LayoutOptions['labels'],
+  cuts: LayoutOptions['cuts'] = 'omit',
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   const embed = (bytes: ArrayBuffer | Uint8Array) => doc.embedFont(bytes, { subset: true });
@@ -44,6 +53,7 @@ export async function playToPdf(play: Play, fonts: FontFiles, labels: LayoutOpti
     charsPerLine: Math.floor(textWidth / charWidth),
     linesPerPage: Math.floor((PAGE_HEIGHT - 2 * MARGIN) / LEADING),
     labels,
+    cuts,
   });
 
   for (const laidOut of pages) {
@@ -61,7 +71,16 @@ export async function playToPdf(play: Play, fonts: FontFiles, labels: LayoutOpti
       const y = PAGE_HEIGHT - MARGIN - (i + 1) * LEADING;
       for (const span of line.spans) {
         page.drawText(span.text, { x, y, size: FONT_SIZE, font: fontFor(span), color: INK });
-        x += span.text.length * charWidth;
+        const width = span.text.length * charWidth;
+        if (span.struck && span.text.trim()) {
+          // Risco só sobre o texto (não sobre os espaços das pontas), na altura
+          // do meio das letras minúsculas.
+          const start = x + (span.text.length - span.text.trimStart().length) * charWidth;
+          const end = x + span.text.trimEnd().length * charWidth;
+          const middle = y + FONT_SIZE * 0.28;
+          page.drawLine({ start: { x: start, y: middle }, end: { x: end, y: middle }, thickness: 0.9, color: INK });
+        }
+        x += width;
       }
     });
   }
