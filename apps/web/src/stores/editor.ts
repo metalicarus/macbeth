@@ -11,6 +11,8 @@ export const useEditorBridge = defineStore('editorBridge', () => {
   const editor = shallowRef<Editor | null>(null);
   /** Nota a destacar no painel (ao clicar no alfinete ou criar uma nota). */
   const focusedNote = ref<Id | null>(null);
+  /** Palavras que o corretor deve ignorar até fechar o app (em minúsculas). */
+  const ignoredWords = new Set<string>();
 
-  return { editor, focusedNote };
+  return { editor, focusedNote, ignoredWords };
 });

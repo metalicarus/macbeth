@@ -14,8 +14,11 @@ import { PlayKeymap } from '../editor/keymap';
 import { elementIdAt, goToElement } from '../editor/navigate';
 import { addNote, NotePins } from '../editor/notes';
 import { renameCues } from '../editor/rename';
+import { redrawSpellCheck, resetSpellCheck, SpellCheck } from '../editor/spellcheck';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
+import { spellClient } from '../spell/client';
+import { wordsIn } from '../spell/words';
 import { useEditorBridge } from '../stores/editor';
 import { useNavigation } from '../stores/navigation';
 import { usePlayStore } from '../stores/play';
@@ -59,6 +62,11 @@ const NoteShortcut = Extension.create({
   },
 });
 
+/** Palavras dos nomes dos personagens: o corretor as aceita em qualquer lugar. */
+const characterWords = computed(
+  () => new Set(store.play.characters.flatMap((c) => wordsIn(c.name).map((w) => w.word.toLocaleLowerCase()))),
+);
+
 const editor = useEditor({
   extensions: [
     ...playExtensions,
@@ -67,6 +75,13 @@ const editor = useEditor({
     PlayKeymap,
     CutCommand,
     NotePins.configure({ onOpen: showNote }),
+    SpellCheck.configure({
+      misspelled: (words) => spellClient.misspelled(words),
+      isAccepted: (word) => {
+        const lower = word.toLocaleLowerCase();
+        return characterWords.value.has(lower) || bridge.ignoredWords.has(lower);
+      },
+    }),
     NoteShortcut,
     CueSuggest.configure({
       suggest: (query) => suggestCharacters(store.play, query),
@@ -84,8 +99,9 @@ const editor = useEditor({
   ],
   content: playToDoc(store.play),
   editorProps: {
-    // A língua do corretor ortográfico é a da peça (painel Peça), não a da interface.
-    attributes: () => ({ class: 'script', spellcheck: 'true', lang: playLanguage(store.play) }),
+    // O corretor do sistema fica desligado: quem corrige é o do Macbeth (SpellCheck),
+    // na língua da peça. O lang ainda serve a leitores de tela e à hifenização.
+    attributes: () => ({ class: 'script', spellcheck: 'false', lang: playLanguage(store.play) }),
   },
   onCreate: ({ editor }) => (bridge.editor = editor),
   onUpdate: ({ editor }) => {
@@ -145,6 +161,21 @@ watch(
     if (ed) ed.view.dispatch(ed.state.tr.setMeta('addToHistory', false));
   },
 );
+
+// Idioma ou dicionário da peça mudou: o corretor troca de dicionário e verifica tudo de novo.
+watch(
+  () => [playLanguage(store.play), store.play.dictionary] as const,
+  async ([language, dictionary]) => {
+    await spellClient.setLanguage(language, dictionary ?? []);
+    if (editor.value) resetSpellCheck(editor.value.view);
+  },
+  { immediate: true },
+);
+
+// Personagens mudaram: os nomes aceitos mudam, sem precisar perguntar de novo ao corretor.
+watch(characterWords, () => {
+  if (editor.value) redrawSpellCheck(editor.value.view);
+});
 
 /** Textos de exemplo na língua da interface, como variáveis CSS (`--ph-cue`, `--ph-line`…). */
 const placeholderVars = computed(() =>
@@ -237,6 +268,13 @@ onBeforeUnmount(() => {
     0 12px 32px -16px rgb(0 0 0 / 25%);
   font: 400 14.5px/1.55 var(--font-script);
   color: var(--ink);
+}
+
+/* Palavra que o corretor não reconhece. */
+.page :deep(.misspelled) {
+  text-decoration: underline wavy var(--cut);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
 }
 
 /* Corte da direção: o texto continua, riscado em vermelho; pode sumir da tela. */
