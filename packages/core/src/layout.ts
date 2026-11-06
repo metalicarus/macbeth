@@ -1,4 +1,5 @@
-import type { Play, Speech } from './model';
+import { isFullyCut, splitByCuts, textWithoutCuts } from './annotations';
+import type { Play, SceneElement, Speech } from './model';
 
 /*
  * Paginação da peça para impressão, na formatação Em linha.
@@ -11,13 +12,17 @@ import type { Play, Speech } from './model';
  *   - título de ato ou cena nunca fica sozinho no pé da página;
  *   - fala que não cabe é dividida, com "(continua)" no pé e
  *     "NOME (cont.)" no alto da página seguinte;
- *   - as páginas são numeradas, menos a folha de rosto.
+ *   - as páginas são numeradas, menos a folha de rosto;
+ *   - os cortes somem (versão do espetáculo) ou saem riscados (cópia da
+ *     direção); fala ou rubrica cortada inteira some por completo.
  */
 
 export interface Span {
   text: string;
   bold?: boolean;
   italic?: boolean;
+  /** Trecho cortado, impresso riscado na cópia da direção. */
+  struck?: boolean;
 }
 
 /** Uma linha impressa. Sem spans, é uma linha em branco. */
@@ -37,6 +42,8 @@ export interface LayoutOptions {
   linesPerPage: number;
   /** Textos que dependem da língua da interface. */
   labels: { continues: string; continued: string };
+  /** Cortes: somem (padrão, versão do espetáculo) ou saem riscados (cópia da direção). */
+  cuts?: 'omit' | 'strike';
 }
 
 interface Block {
@@ -67,13 +74,17 @@ export function wrap(spans: Span[], width: number, align: Line['align'] = 'left'
   };
   const add = (text: string, style: Omit<Span, 'text'>) => {
     const last = current.at(-1);
-    if (last && last.bold === style.bold && last.italic === style.italic) last.text += text;
+    if (last && last.bold === style.bold && last.italic === style.italic && last.struck === style.struck) last.text += text;
     else current.push({ text, ...style });
     length += text.length;
   };
 
   for (const span of spans) {
-    const style = { ...(span.bold ? { bold: true } : {}), ...(span.italic ? { italic: true } : {}) };
+    const style = {
+      ...(span.bold ? { bold: true } : {}),
+      ...(span.italic ? { italic: true } : {}),
+      ...(span.struck ? { struck: true } : {}),
+    };
     span.text.split('\n').forEach((segment, i) => {
       if (i > 0) push();
       for (const token of segment.match(/\s+|\S+/g) ?? []) {
@@ -97,16 +108,29 @@ export function wrap(spans: Span[], width: number, align: Line['align'] = 'left'
   return lines;
 }
 
-function speechSpans(speech: Speech, speaker: string): Span[] {
+/** O texto da fala ou rubrica, sem os cortes ou com eles riscados. */
+function textSpans(element: SceneElement, cuts: 'omit' | 'strike', italic: boolean): Span[] {
+  const style = italic ? { italic: true } : {};
+  if (cuts === 'omit') return [{ text: textWithoutCuts(element.text, element.cuts), ...style }];
+  return splitByCuts(element.text, element.cuts).map((part) => ({
+    text: part.text,
+    ...style,
+    ...(part.cut ? { struck: true } : {}),
+  }));
+}
+
+function speechSpans(speech: Speech, speaker: string, cuts: 'omit' | 'strike'): Span[] {
+  // Na cópia da direção, a fala cortada inteira sai riscada também no nome.
+  const struck = cuts === 'strike' && isFullyCut(speech) ? { struck: true } : {};
   return [
-    { text: speaker.toLocaleUpperCase('pt-BR'), bold: true },
-    { text: ' – ' },
-    ...(speech.parenthetical ? [{ text: `(${speech.parenthetical})`, italic: true }, { text: ' ' }] : []),
-    { text: speech.text },
+    { text: speaker.toLocaleUpperCase('pt-BR'), bold: true, ...struck },
+    { text: ' – ', ...struck },
+    ...(speech.parenthetical ? [{ text: `(${speech.parenthetical})`, italic: true, ...struck }, { text: ' ', ...struck }] : []),
+    ...textSpans(speech, cuts, false),
   ];
 }
 
-function blocksOf(play: Play, width: number): Block[] {
+function blocksOf(play: Play, width: number, cuts: 'omit' | 'strike'): Block[] {
   const names = new Map(play.characters.map((c) => [c.id, c.name]));
   const blocks: Block[] = [];
 
@@ -126,11 +150,13 @@ function blocksOf(play: Play, width: number): Block[] {
       if (title) blocks.push({ lines: wrap([{ text: title, bold: true }], width, 'center'), keepWithNext: true });
 
       for (const element of scene.elements) {
+        if (cuts === 'omit' && isFullyCut(element)) continue;
         if (element.type === 'direction') {
-          blocks.push({ lines: wrap([{ text: `(${element.text})`, italic: true }], width) });
+          const spans = [{ text: '(', italic: true }, ...textSpans(element, cuts, true), { text: ')', italic: true }];
+          blocks.push({ lines: wrap(spans, width) });
         } else {
           const speaker = names.get(element.characterId) ?? '';
-          blocks.push({ lines: wrap(speechSpans(element, speaker), width), speaker });
+          blocks.push({ lines: wrap(speechSpans(element, speaker, cuts), width), speaker });
         }
       }
     }
@@ -169,7 +195,7 @@ export function layoutPlay(play: Play, options: LayoutOptions): LaidOutPage[] {
   };
   const free = () => linesPerPage - page.length;
 
-  const blocks = blocksOf(play, charsPerLine);
+  const blocks = blocksOf(play, charsPerLine, options.cuts ?? 'omit');
   blocks.forEach((block, i) => {
     if (block.pageBreak) newPage();
     if (block.lines.length === 0) return;

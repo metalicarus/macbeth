@@ -148,3 +148,43 @@ describe('layoutPlay', () => {
     expect(layoutPlay(createPlay(), options())).toHaveLength(1);
   });
 });
+
+describe('cortes na paginação', () => {
+  function playWithCuts(): Play {
+    return playWith(['Macbeth', 'Banquo'], (c) => [
+      { ...direction('Trovão. Entram as Bruxas.'), cuts: [{ from: 0, to: 8 }] },
+      { ...speech(c.Macbeth!, 'Dia tão feio e tão belo eu nunca vi.'), cuts: [{ from: 13, to: 24 }] },
+      { ...speech(c.Banquo!, 'Fala cortada inteira.'), cuts: [{ from: 0, to: 21 }] },
+      direction('Saem.'),
+    ]);
+  }
+
+  it('por padrão os trechos cortados somem, e o que foi cortado inteiro some por completo', () => {
+    const [page] = layoutPlay(playWithCuts(), options({ charsPerLine: 60 }));
+    expect(pageTexts(page!)).toEqual([
+      'ATO I',
+      '',
+      'Cena 1',
+      '',
+      '(Entram as Bruxas.)',
+      '',
+      'MACBETH – Dia tão feio eu nunca vi.',
+      '',
+      '(Saem.)',
+    ]);
+  });
+
+  it('na cópia da direção os cortes saem riscados, e a fala cortada inteira é riscada até no nome', () => {
+    const [page] = layoutPlay(playWithCuts(), options({ charsPerLine: 60, cuts: 'strike' }));
+    const texts = pageTexts(page!);
+
+    expect(texts).toContain('MACBETH – Dia tão feio e tão belo eu nunca vi.');
+    expect(texts).toContain('BANQUO – Fala cortada inteira.');
+
+    const macbeth = page!.lines.find((l) => text(l).startsWith('MACBETH'))!;
+    expect(macbeth.spans.filter((s) => s.struck).map((s) => s.text.trim())).toEqual(['e tão belo']);
+
+    const banquo = page!.lines.find((l) => text(l).startsWith('BANQUO'))!;
+    expect(banquo.spans.every((s) => s.struck)).toBe(true);
+  });
+});
