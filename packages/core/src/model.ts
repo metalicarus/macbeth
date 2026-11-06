@@ -97,6 +97,11 @@ export interface Play {
   titlePage: TitlePage;
   characters: Character[];
   acts: Act[];
+  /**
+   * Palavras que o corretor deve aceitar nesta peça (nomes, termos antigos,
+   * invenções do autor). Vão junto com o arquivo, para quem o abrir.
+   */
+  dictionary?: string[];
 }
 
 export function createScene(title = 'Cena 1'): Scene {

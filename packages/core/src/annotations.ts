@@ -83,3 +83,20 @@ export function listNotes(play: Play): NoteEntry[] {
   }
   return entries;
 }
+
+/** Acrescenta a palavra ao dicionário da peça, sem repetir; a lista fica em ordem alfabética. */
+export function addToDictionary(play: Play, word: string): Play {
+  const clean = word.trim();
+  const current = play.dictionary ?? [];
+  if (!clean || current.includes(clean)) return play;
+  return { ...play, dictionary: [...current, clean].sort((a, b) => a.localeCompare(b)) };
+}
+
+export function removeFromDictionary(play: Play, word: string): Play {
+  const current = play.dictionary ?? [];
+  if (!current.includes(word)) return play;
+  const dictionary = current.filter((w) => w !== word);
+  if (dictionary.length > 0) return { ...play, dictionary };
+  const { dictionary: _, ...rest } = play;
+  return rest;
+}

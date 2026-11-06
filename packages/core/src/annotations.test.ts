@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createNote, isFullyCut, listNotes, normalizeCuts, splitByCuts, textWithoutCuts } from './annotations';
+import { addToDictionary, createNote, isFullyCut, listNotes, removeFromDictionary, normalizeCuts, splitByCuts, textWithoutCuts } from './annotations';
 import { createPlay } from './model';
 import type { SceneElement } from './model';
 
@@ -74,5 +74,20 @@ describe('listNotes', () => {
       [2, 'n2', 'f1', 'MACBETH – Dia tão feio e tão belo eu nunca vi, nem nunca verei outro…'],
       [3, 'n3', 'f1', 'MACBETH – Dia tão feio e tão belo eu nunca vi, nem nunca verei outro…'],
     ]);
+  });
+});
+
+describe('dicionário da peça', () => {
+  it('acrescenta sem repetir, em ordem alfabética, e remove', () => {
+    let play = createPlay();
+    play = addToDictionary(play, 'Glamis');
+    play = addToDictionary(play, ' Cawdor ');
+    play = addToDictionary(play, 'Glamis');
+    expect(play.dictionary).toEqual(['Cawdor', 'Glamis']);
+
+    play = removeFromDictionary(play, 'Cawdor');
+    expect(play.dictionary).toEqual(['Glamis']);
+    play = removeFromDictionary(play, 'Glamis');
+    expect(play).not.toHaveProperty('dictionary');
   });
 });

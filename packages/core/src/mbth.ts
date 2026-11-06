@@ -121,6 +121,12 @@ export function validatePlay(data: unknown): Play {
   str(titlePage, 'subtitle', 'peça.titlePage', true);
   str(titlePage, 'language', 'peça.titlePage', true);
 
+  if (play.dictionary !== undefined) {
+    arr(play.dictionary, 'peça.dictionary').forEach((word, i) => {
+      if (typeof word !== 'string') fail(`peça.dictionary[${i}]`, 'um texto');
+    });
+  }
+
   const characterIds = new Set<string>();
   arr(play.characters, 'peça.characters').forEach((item, i) => {
     const path = `peça.characters[${i}]`;

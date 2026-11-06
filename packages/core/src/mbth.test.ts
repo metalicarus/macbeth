@@ -143,3 +143,11 @@ describe('idioma da peça no arquivo', () => {
     expect(() => readMbth(zipWithPlay(play))).toThrow('titlePage.language');
   });
 });
+
+describe('dicionário da peça no arquivo', () => {
+  it('guarda as palavras e recusa o que não é texto', () => {
+    const play = { ...samplePlay(), dictionary: ['Glamis', 'Cawdor'] };
+    expect(readMbth(writeMbth({ play, extras: {} })).play.dictionary).toEqual(['Glamis', 'Cawdor']);
+    expect(() => readMbth(zipWithPlay({ ...samplePlay(), dictionary: ['ok', 3] }))).toThrow('dictionary[1]');
+  });
+});
