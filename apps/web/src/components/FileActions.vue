@@ -111,6 +111,7 @@ button {
   border-radius: 7px;
   font-size: 12px;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 button:hover {

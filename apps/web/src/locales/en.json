@@ -91,5 +91,23 @@
     "inScene": "In this scene",
     "noScene": "Put the cursor in a scene to see who speaks in it.",
     "nobody": "Nobody speaks in this scene yet."
+  },
+  "modes": {
+    "label": "Mode",
+    "write": "Write",
+    "structure": "Structure"
+  },
+  "structure": {
+    "title": "Who speaks in each scene",
+    "hint": "Click a name to highlight the character, or a square to go to the scene.",
+    "empty": "Characters show up here as soon as someone speaks in the play.",
+    "character": "Character",
+    "scenes": "Scenes",
+    "cell": "{name}, {scene}: {speeches}",
+    "summary": "Summary",
+    "characters": "Characters",
+    "sceneCount": "Scenes",
+    "mostPresent": "In most scenes",
+    "inScenes": "no scenes | 1 scene | {n} scenes"
   }
 }

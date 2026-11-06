@@ -4,20 +4,26 @@ import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
+import ModeTabs from './components/ModeTabs.vue';
 import NoticeBar from './components/NoticeBar.vue';
 import OutlinePane from './components/OutlinePane.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
+import StructureView from './components/StructureView.vue';
 import { guardUnsavedClose } from './files/close-guard';
+import { useNavigation } from './stores/navigation';
 import { usePlayStore } from './stores/play';
 import { usePreferences } from './stores/preferences';
 
 const { t } = useI18n();
 const { play, fileName, dirty } = storeToRefs(usePlayStore());
 const { panelOpen, outlineOpen } = storeToRefs(usePreferences());
+const { mode } = storeToRefs(useNavigation());
 
+// O Sumário só faz sentido junto do texto; na Estrutura a tabela ocupa o lugar.
+const showOutline = computed(() => outlineOpen.value && mode.value === 'write');
 const columns = computed(() =>
-  [outlineOpen.value ? '220px' : '', 'minmax(0, 1fr)', panelOpen.value ? '280px' : ''].filter(Boolean).join(' '),
+  [showOutline.value ? '220px' : '', 'minmax(0, 1fr)', panelOpen.value ? '280px' : ''].filter(Boolean).join(' '),
 );
 
 onMounted(() =>
@@ -37,6 +43,8 @@ onMounted(() =>
         <span v-if="fileName || dirty" class="status" :class="{ dirty }">● {{ dirty ? t('file.unsaved') : t('file.saved') }}</span>
       </span>
       <span class="spacer"></span>
+      <ModeTabs />
+      <span class="spacer"></span>
       <FileActions />
       <LookToggle />
       <button type="button" class="panel-toggle" :aria-pressed="outlineOpen" @click="outlineOpen = !outlineOpen">
@@ -48,10 +56,14 @@ onMounted(() =>
     </header>
     <div class="body" :style="{ gridTemplateColumns: columns }">
       <NoticeBar />
-      <OutlinePane v-if="outlineOpen" />
-      <main class="desk">
-        <PlayEditor />
-      </main>
+      <OutlinePane v-if="showOutline" />
+      <div class="center">
+        <!-- O editor fica montado na Estrutura, para preservar cursor e histórico. -->
+        <main v-show="mode === 'write'" class="desk">
+          <PlayEditor />
+        </main>
+        <StructureView v-if="mode === 'structure'" />
+      </div>
       <PlayPanel v-if="panelOpen" />
     </div>
   </div>
@@ -71,6 +83,15 @@ onMounted(() =>
   padding: 8px 12px;
   border-bottom: 1px solid var(--line);
   min-width: 0;
+}
+
+/* Quando falta espaço, só o nome do arquivo encolhe. */
+.topbar > * {
+  flex-shrink: 0;
+}
+
+.topbar > .file {
+  flex-shrink: 1;
 }
 
 .brand {
@@ -122,6 +143,12 @@ onMounted(() =>
   position: relative;
   display: grid;
   min-height: 0;
+}
+
+.center {
+  display: grid;
+  min-height: 0;
+  min-width: 0;
 }
 
 .desk {

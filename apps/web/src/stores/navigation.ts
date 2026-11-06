@@ -16,13 +16,18 @@ export const useNavigation = defineStore('navigation', () => {
   /** Ato e cena onde está o cursor. */
   const current = computed(() => (cursorElementId.value ? locate(play.play, cursorElementId.value) : null));
 
+  /** Modo da janela: o texto (Escrever) ou a tabela de cenas (Estrutura). */
+  const mode = ref<'write' | 'structure'>('write');
+
   /** Pedido de navegação; o número muda a cada pedido, mesmo para o mesmo id. */
   const request = shallowRef<{ id: Id; seq: number } | null>(null);
   let seq = 0;
 
+  /** Vai até o elemento no texto, voltando para o modo Escrever se preciso. */
   function goTo(id: Id) {
+    mode.value = 'write';
     request.value = { id, seq: ++seq };
   }
 
-  return { cursorElementId, current, request, goTo };
+  return { cursorElementId, current, mode, request, goTo };
 });

@@ -91,5 +91,23 @@
     "inScene": "Nesta cena",
     "noScene": "Ponha o cursor numa cena para ver quem fala nela.",
     "nobody": "Ninguém fala nesta cena ainda."
+  },
+  "modes": {
+    "label": "Modo",
+    "write": "Escrever",
+    "structure": "Estrutura"
+  },
+  "structure": {
+    "title": "Quem fala em cada cena",
+    "hint": "Clique num nome para destacar o personagem, ou num quadrado para ir à cena.",
+    "empty": "Os personagens aparecem aqui assim que alguém falar na peça.",
+    "character": "Personagem",
+    "scenes": "Cenas",
+    "cell": "{name}, {scene}: {speeches}",
+    "summary": "Resumo",
+    "characters": "Personagens",
+    "sceneCount": "Cenas",
+    "mostPresent": "Em mais cenas",
+    "inScenes": "nenhuma cena | 1 cena | {n} cenas"
   }
 }

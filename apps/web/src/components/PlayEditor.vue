@@ -64,12 +64,18 @@ const editor = useEditor({
   onSelectionUpdate: ({ editor }) => (navigation.cursorElementId = elementIdAt(editor.state)),
 });
 
-// Pedido de navegação vindo da lateral ou da tabela de cenas.
+// Pedido de navegação vindo da lateral ou da tabela de cenas. Vindo da tabela,
+// o texto acabou de reaparecer: espera um quadro para a tela se recompor, senão
+// a rolagem e o foco se perdem.
 watch(
   () => navigation.request,
   (request) => {
-    if (request && editor.value) goToElement(editor.value, request.id);
+    if (!request) return;
+    requestAnimationFrame(() => {
+      if (editor.value) goToElement(editor.value, request.id);
+    });
   },
+  { flush: 'post' },
 );
 
 // Outra peça foi aberta (ou uma nova criada): o editor passa a mostrá-la, com o
