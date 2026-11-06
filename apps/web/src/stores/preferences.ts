@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
+import { detectLocale, i18n, LOCALES, type Locale } from '../i18n';
 
 export type Look = 'papel' | 'coxia';
 
@@ -7,6 +8,20 @@ const LOOK_KEY = 'macbeth.look';
 const PANEL_KEY = 'macbeth.panel';
 const OUTLINE_KEY = 'macbeth.outline';
 const CUTS_KEY = 'macbeth.cuts';
+const LANGUAGE_KEY = 'macbeth.language';
+
+/** Língua da interface: uma das suportadas, ou "auto" para seguir o sistema. */
+export type InterfaceLanguage = Locale | 'auto';
+
+function initialLanguage(): InterfaceLanguage {
+  try {
+    const saved = localStorage.getItem(LANGUAGE_KEY);
+    if (saved && (LOCALES as readonly string[]).includes(saved)) return saved as Locale;
+  } catch {
+    // Sem acesso ao armazenamento: segue o sistema.
+  }
+  return 'auto';
+}
 
 function initialLook(): Look {
   try {
@@ -43,6 +58,7 @@ export const usePreferences = defineStore('preferences', () => {
   const outlineOpen = ref(initiallyOpen(OUTLINE_KEY));
   /** Trechos cortados aparecem riscados no texto; desligado, somem da tela. */
   const showCuts = ref(initiallyOpen(CUTS_KEY));
+  const language = ref<InterfaceLanguage>(initialLanguage());
 
   watch(
     look,
@@ -61,5 +77,21 @@ export const usePreferences = defineStore('preferences', () => {
   watch(outlineOpen, (open) => remember(OUTLINE_KEY, open));
   watch(showCuts, (show) => remember(CUTS_KEY, show));
 
-  return { look, panelOpen, outlineOpen, showCuts };
+  watch(
+    language,
+    (choice) => {
+      const locale = choice === 'auto' ? detectLocale() : choice;
+      i18n.global.locale.value = locale;
+      document.documentElement.lang = locale;
+      try {
+        if (choice === 'auto') localStorage.removeItem(LANGUAGE_KEY);
+        else localStorage.setItem(LANGUAGE_KEY, choice);
+      } catch {
+        // A escolha vale só para esta sessão.
+      }
+    },
+    { immediate: true },
+  );
+
+  return { look, panelOpen, outlineOpen, showCuts, language };
 });

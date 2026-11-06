@@ -98,12 +98,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <button type="button">{{ t('file.exportPdf') }} ▾</button>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuContent class="export-menu" align="end" :side-offset="6">
-          <DropdownMenuItem class="export-menu-item" @select="exportPdf('omit')">
+        <DropdownMenuContent class="popup-menu" align="end" :side-offset="6">
+          <DropdownMenuItem class="popup-menu-item" @select="exportPdf('omit')">
             <span>{{ t('file.exportShow') }}</span>
             <small>{{ t('file.exportShowHint') }}</small>
           </DropdownMenuItem>
-          <DropdownMenuItem class="export-menu-item" @select="exportPdf('strike')">
+          <DropdownMenuItem class="popup-menu-item" @select="exportPdf('strike')">
             <span>{{ t('file.exportDirector') }}</span>
             <small>{{ t('file.exportDirectorHint') }}</small>
           </DropdownMenuItem>
@@ -147,38 +147,5 @@ button.primary {
   background: var(--accent);
   color: var(--accent-ink);
   font-weight: 600;
-}
-</style>
-
-<!-- O menu é desenhado fora do componente (portal), onde estilos com escopo não chegam. -->
-<style>
-.export-menu {
-  z-index: 30;
-  min-width: 240px;
-  padding: 4px;
-  background: var(--page);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 35%);
-}
-
-.export-menu-item {
-  display: grid;
-  gap: 2px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  color: var(--ink);
-  cursor: pointer;
-  outline: none;
-}
-
-.export-menu-item[data-highlighted] {
-  background: var(--accent-soft);
-}
-
-.export-menu-item small {
-  font-size: 11.5px;
-  color: var(--muted);
 }
 </style>

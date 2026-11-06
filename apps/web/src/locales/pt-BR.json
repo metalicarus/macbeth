@@ -171,5 +171,10 @@
       "note": "Nova nota na fala ou rubrica onde está o cursor",
       "shortcuts": "Mostra estes atalhos"
     }
+  },
+  "language": {
+    "label": "Idioma da interface",
+    "auto": "Automático",
+    "autoHint": "Segue o idioma do sistema"
   }
 }

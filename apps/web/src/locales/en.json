@@ -171,5 +171,10 @@
       "note": "New note on the line or stage direction where the cursor is",
       "shortcuts": "Shows these shortcuts"
     }
+  },
+  "language": {
+    "label": "Interface language",
+    "auto": "Automatic",
+    "autoHint": "Follows the system language"
   }
 }

@@ -171,5 +171,10 @@
       "note": "Nueva nota en el parlamento o la acotación donde está el cursor",
       "shortcuts": "Muestra estos atajos"
     }
+  },
+  "language": {
+    "label": "Idioma de la interfaz",
+    "auto": "Automático",
+    "autoHint": "Sigue el idioma del sistema"
   }
 }

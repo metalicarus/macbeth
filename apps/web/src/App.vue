@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
+import LanguageMenu from './components/LanguageMenu.vue';
 import LookToggle from './components/LookToggle.vue';
 import ModeTabs from './components/ModeTabs.vue';
 import NoticeBar from './components/NoticeBar.vue';
@@ -67,6 +68,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       <button type="button" class="panel-toggle" :aria-pressed="panelOpen" @click="panelOpen = !panelOpen">
         {{ t('panel.toggle') }}
       </button>
+      <LanguageMenu />
       <button
         type="button"
         class="help"

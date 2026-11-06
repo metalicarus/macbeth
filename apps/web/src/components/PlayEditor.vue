@@ -5,7 +5,7 @@ import { UndoRedo } from '@tiptap/extensions/undo-redo';
 import { EditorState } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
-import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
 import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
@@ -77,10 +77,9 @@ const editor = useEditor({
     Placeholder.configure({
       includeChildren: true,
       showOnlyCurrent: false,
-      placeholder: ({ node }) => {
-        const key = PLACEHOLDER_KEYS[node.type.name];
-        return key ? t(`editor.placeholder.${key}`) : '';
-      },
+      // Só a chave: o texto vem das variáveis CSS da página (placeholderVars),
+      // que acompanham a língua da interface sem precisar recalcular o editor.
+      placeholder: ({ node }) => PLACEHOLDER_KEYS[node.type.name] ?? '',
     }),
   ],
   content: playToDoc(store.play),
@@ -137,6 +136,13 @@ watch(
   },
 );
 
+/** Textos de exemplo na língua da interface, como variáveis CSS (`--ph-cue`, `--ph-line`…). */
+const placeholderVars = computed(() =>
+  Object.fromEntries(
+    Object.values(PLACEHOLDER_KEYS).map((key) => [`--ph-${key}`, JSON.stringify(t(`editor.placeholder.${key}`))]),
+  ),
+);
+
 function cut() {
   const ed = editor.value;
   if (!ed) return;
@@ -158,7 +164,12 @@ onBeforeUnmount(() => {
     </button>
     <label><input v-model="preferences.showCuts" type="checkbox" /> {{ t('editor.toolbar.showCuts') }}</label>
   </div>
-  <div ref="page" class="page fmt-inline" :class="{ 'hide-cuts': !preferences.showCuts }">
+  <div
+    ref="page"
+    class="page fmt-inline"
+    :class="{ 'hide-cuts': !preferences.showCuts }"
+    :style="placeholderVars"
+  >
     <EditorContent :editor="editor" />
     <CueSuggestList v-if="editor && page && suggestion.open" :editor="editor" :state="suggestion" :container="page" />
   </div>
@@ -362,13 +373,20 @@ onBeforeUnmount(() => {
 
 .page :deep(.el-act.is-empty)::before,
 .page :deep(.el-scene.is-empty)::before {
-  content: attr(data-placeholder);
   display: block;
   height: 0;
 }
 
+.page :deep(.el-act.is-empty)::before {
+  content: var(--ph-act);
+}
+
+.page :deep(.el-scene.is-empty)::before {
+  content: var(--ph-scene);
+}
+
 .fmt-inline :deep(.el-direction.is-empty)::before {
-  content: '(' attr(data-placeholder) ')';
+  content: '(' var(--ph-direction) ')';
   float: left;
   height: 0;
 }
@@ -390,18 +408,18 @@ onBeforeUnmount(() => {
 
 .fmt-inline :deep(.speech-cue.is-empty)::before,
 .fmt-inline :deep(.speech-parenthetical.is-empty)::before {
-  content: attr(data-placeholder);
+  content: var(--ph-cue);
   position: absolute;
   left: 0;
   white-space: nowrap;
 }
 
 .fmt-inline :deep(.speech-parenthetical.is-empty)::before {
-  content: '(' attr(data-placeholder) ')';
+  content: '(' var(--ph-parenthetical) ')';
 }
 
 .fmt-inline :deep(.speech-line.is-empty)::before {
-  content: attr(data-placeholder);
+  content: var(--ph-line);
   float: left;
   height: 0;
 }

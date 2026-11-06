@@ -20,7 +20,7 @@ export function detectLocale(languages: readonly string[] = navigator.languages)
   return 'pt-BR';
 }
 
-export const i18n = createI18n<[Messages], Locale>({
+export const i18n = createI18n<[Messages], Locale, false>({
   legacy: false,
   locale: detectLocale(),
   fallbackLocale: 'pt-BR',
