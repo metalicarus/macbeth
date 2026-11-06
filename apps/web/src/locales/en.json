@@ -82,5 +82,14 @@
   },
   "notice": {
     "dismiss": "Dismiss"
+  },
+  "outline": {
+    "toggle": "Outline",
+    "acts": "Acts and scenes",
+    "untitledAct": "Untitled act",
+    "untitledScene": "Untitled scene",
+    "inScene": "In this scene",
+    "noScene": "Put the cursor in a scene to see who speaks in it.",
+    "nobody": "Nobody speaks in this scene yet."
   }
 }

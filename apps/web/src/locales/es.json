@@ -82,5 +82,14 @@
   },
   "notice": {
     "dismiss": "Cerrar aviso"
+  },
+  "outline": {
+    "toggle": "Índice",
+    "acts": "Actos y escenas",
+    "untitledAct": "Acto sin título",
+    "untitledScene": "Escena sin título",
+    "inScene": "En esta escena",
+    "noScene": "Pon el cursor en una escena para ver quién habla en ella.",
+    "nobody": "Nadie habla en esta escena todavía."
   }
 }

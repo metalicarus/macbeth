@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
 import NoticeBar from './components/NoticeBar.vue';
+import OutlinePane from './components/OutlinePane.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
 import { guardUnsavedClose } from './files/close-guard';
@@ -13,7 +14,11 @@ import { usePreferences } from './stores/preferences';
 
 const { t } = useI18n();
 const { play, fileName, dirty } = storeToRefs(usePlayStore());
-const { panelOpen } = storeToRefs(usePreferences());
+const { panelOpen, outlineOpen } = storeToRefs(usePreferences());
+
+const columns = computed(() =>
+  [outlineOpen.value ? '220px' : '', 'minmax(0, 1fr)', panelOpen.value ? '280px' : ''].filter(Boolean).join(' '),
+);
 
 onMounted(() =>
   guardUnsavedClose(
@@ -34,12 +39,16 @@ onMounted(() =>
       <span class="spacer"></span>
       <FileActions />
       <LookToggle />
+      <button type="button" class="panel-toggle" :aria-pressed="outlineOpen" @click="outlineOpen = !outlineOpen">
+        {{ t('outline.toggle') }}
+      </button>
       <button type="button" class="panel-toggle" :aria-pressed="panelOpen" @click="panelOpen = !panelOpen">
         {{ t('panel.toggle') }}
       </button>
     </header>
-    <div class="body" :class="{ 'with-panel': panelOpen }">
+    <div class="body" :style="{ gridTemplateColumns: columns }">
       <NoticeBar />
+      <OutlinePane v-if="outlineOpen" />
       <main class="desk">
         <PlayEditor />
       </main>
@@ -112,12 +121,7 @@ onMounted(() =>
 .body {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   min-height: 0;
-}
-
-.body.with-panel {
-  grid-template-columns: minmax(0, 1fr) 280px;
 }
 
 .desk {

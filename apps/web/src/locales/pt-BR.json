@@ -82,5 +82,14 @@
   },
   "notice": {
     "dismiss": "Fechar aviso"
+  },
+  "outline": {
+    "toggle": "Sumário",
+    "acts": "Atos e cenas",
+    "untitledAct": "Ato sem título",
+    "untitledScene": "Cena sem título",
+    "inScene": "Nesta cena",
+    "noScene": "Ponha o cursor numa cena para ver quem fala nela.",
+    "nobody": "Ninguém fala nesta cena ainda."
   }
 }
