@@ -4,6 +4,7 @@ import { strToU8 } from 'fflate';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setFileProvider, type FileHandle, type FileProvider } from '../files';
+import { i18n } from '../i18n';
 import { usePlayStore } from './play';
 
 beforeEach(() => setActivePinia(createPinia()));
@@ -165,7 +166,7 @@ describe('folha de rosto e personagens', () => {
   it('editar a folha de rosto marca a peça como não salva', () => {
     const store = usePlayStore();
     store.updateTitlePage({ title: 'Macbeth', author: 'William Shakespeare', subtitle: 'Tragédia' });
-    expect(store.play.titlePage).toEqual({ title: 'Macbeth', author: 'William Shakespeare', subtitle: 'Tragédia' });
+    expect(store.play.titlePage).toMatchObject({ title: 'Macbeth', author: 'William Shakespeare', subtitle: 'Tragédia' });
     expect(store.dirty).toBe(true);
   });
 
@@ -209,6 +210,25 @@ describe('folha de rosto e personagens', () => {
     const before = store.play;
     expect(() => store.addCharacter('banquo')).toThrow(/Já existe/);
     expect(store.play).toBe(before);
+  });
+});
+
+describe('idioma da peça', () => {
+  it('peça nova começa no idioma da interface', () => {
+    i18n.global.locale.value = 'es';
+    const store = usePlayStore();
+    store.newPlay();
+    expect(store.play.titlePage.language).toBe('es');
+    i18n.global.locale.value = 'pt-BR';
+  });
+
+  it('peça importada sem idioma recebe o da interface', async () => {
+    i18n.global.locale.value = 'en';
+    fakeFiles({ name: 'cena.fountain', bytes: strToU8('MACBETH\nOlá.') });
+    const store = usePlayStore();
+    await store.importFrom();
+    expect(store.play.titlePage.language).toBe('en');
+    i18n.global.locale.value = 'pt-BR';
   });
 });
 

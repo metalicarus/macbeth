@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { suggestCharacters } from '@macbeth/core';
+import { playLanguage, suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
 import { EditorState } from '@tiptap/pm/state';
@@ -84,7 +84,8 @@ const editor = useEditor({
   ],
   content: playToDoc(store.play),
   editorProps: {
-    attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
+    // A língua do corretor ortográfico é a da peça (painel Peça), não a da interface.
+    attributes: () => ({ class: 'script', spellcheck: 'true', lang: playLanguage(store.play) }),
   },
   onCreate: ({ editor }) => (bridge.editor = editor),
   onUpdate: ({ editor }) => {
@@ -133,6 +134,15 @@ watch(
       const old = previous.get(c.id);
       if (old !== undefined && old !== c.name) renameCues(ed.state, ed.view.dispatch, c.id, old, c.name);
     }
+  },
+);
+
+// Idioma da peça trocado no painel: o editor reaplica os atributos (lang do corretor).
+watch(
+  () => playLanguage(store.play),
+  () => {
+    const ed = editor.value;
+    if (ed) ed.view.dispatch(ed.state.tr.setMeta('addToHistory', false));
   },
 );
 

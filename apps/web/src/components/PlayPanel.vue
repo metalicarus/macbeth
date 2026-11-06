@@ -1,12 +1,26 @@
 <script setup lang="ts">
-import type { TitlePage } from '@macbeth/core';
+import { PLAY_LANGUAGES, playLanguage, type TitlePage } from '@macbeth/core';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { usePlayStore } from '../stores/play';
 import CastList from './CastList.vue';
 import NotesList from './NotesList.vue';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const store = usePlayStore();
+
+/** Nome de cada língua na língua da interface ("Português (Brasil)", "Spanish"…), pelo próprio navegador. */
+const languages = computed(() => {
+  const names = new Intl.DisplayNames([locale.value], { type: 'language' });
+  const label = (code: string) => {
+    const name = names.of(code) ?? code;
+    return name.charAt(0).toLocaleUpperCase(locale.value) + name.slice(1);
+  };
+  const current = playLanguage(store.play);
+  // Um arquivo pode trazer uma língua fora da lista; ela aparece também.
+  const codes = (PLAY_LANGUAGES as readonly string[]).includes(current) ? [...PLAY_LANGUAGES] : [...PLAY_LANGUAGES, current];
+  return codes.map((code) => ({ code, label: label(code) }));
+});
 
 const fields: { key: keyof TitlePage; label: string; placeholder: string }[] = [
   { key: 'title', label: 'panel.title', placeholder: 'panel.titlePlaceholder' },
@@ -32,7 +46,16 @@ function update(key: keyof TitlePage, event: Event) {
           @input="update(field.key, $event)"
         />
       </label>
-      <p class="hint">{{ t('panel.titlePageHint') }}</p>
+      <label class="field">
+        <span>{{ t('panel.language') }}</span>
+        <select
+          :value="playLanguage(store.play)"
+          @change="store.updateTitlePage({ language: ($event.target as HTMLSelectElement).value })"
+        >
+          <option v-for="language in languages" :key="language.code" :value="language.code">{{ language.label }}</option>
+        </select>
+      </label>
+      <p class="hint">{{ t('panel.titlePageHint') }} {{ t('panel.languageHint') }}</p>
     </section>
     <NotesList />
     <CastList />
@@ -74,7 +97,8 @@ h4 {
   color: var(--muted);
 }
 
-input {
+input,
+select {
   font: inherit;
   padding: 6px 8px;
   border-radius: 6px;

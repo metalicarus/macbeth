@@ -18,12 +18,18 @@ import type { JSONContent } from '@tiptap/core';
 import { defineStore } from 'pinia';
 import { ref, shallowRef } from 'vue';
 import { docToPlay } from '../editor/convert';
+import { i18n } from '../i18n';
 import { fileProvider, IMPORT_FILES, suggestedFileName, type FileHandle } from '../files';
 import { importPlay } from '../import';
 
+/** Peça nova, escrita na língua da interface. */
+function newBlankPlay(): Play {
+  return createPlay({ language: i18n.global.locale.value });
+}
+
 /** A peça aberta e o arquivo de onde ela veio. O editor escreve aqui a cada alteração. */
 export const usePlayStore = defineStore('play', () => {
-  const play = shallowRef<Play>(createPlay());
+  const play = shallowRef<Play>(newBlankPlay());
   const fileName = ref<string | null>(null);
   /** Há alterações desde a última vez que a peça foi aberta ou salva. */
   const dirty = ref(false);
@@ -53,7 +59,7 @@ export const usePlayStore = defineStore('play', () => {
   }
 
   function newPlay() {
-    load(createPlay(), { name: null, handle: null, extras: {} });
+    load(newBlankPlay(), { name: null, handle: null, extras: {} });
   }
 
   /** Abre um .mbth. Devolve `false` se a pessoa cancelar; erros de formato são lançados (MbthError). */
@@ -75,9 +81,11 @@ export const usePlayStore = defineStore('play', () => {
     const file = await fileProvider().open(IMPORT_FILES);
     if (!file) return null;
     const imported = await importPlay(file.name, file.bytes);
-    if (!imported.titlePage.title) {
-      imported.titlePage = { ...imported.titlePage, title: file.name.replace(/\.[^.]+$/, '') };
-    }
+    imported.titlePage = {
+      ...imported.titlePage,
+      title: imported.titlePage.title || file.name.replace(/\.[^.]+$/, ''),
+      language: imported.titlePage.language || i18n.global.locale.value,
+    };
     load(imported, { name: null, handle: null, extras: {} });
     dirty.value = true;
     return summarizePlay(imported);

@@ -1,7 +1,7 @@
 import { addCharacter, createPlay, newId, type Play } from '@macbeth/core';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { playToPdf, type FontFiles } from './pdf';
 
@@ -36,6 +36,13 @@ describe('playToPdf', () => {
     expect(pdf.getPage(0).getSize()).toEqual({ width: 595.28, height: 841.89 });
     expect(pdf.getTitle()).toBe('Macbeth');
     expect(pdf.getAuthor()).toBe('William Shakespeare');
+  });
+
+  it('registra o idioma da peça no PDF', async () => {
+    const play = sample(1);
+    play.titlePage.language = 'es';
+    const pdf = await PDFDocument.load(await playToPdf(play, fonts, labels));
+    expect((pdf.catalog.get(PDFName.of('Lang')) as PDFString).decodeText()).toBe('es');
   });
 
   it('a cópia da direção sai maior que a do espetáculo quando há cortes', async () => {

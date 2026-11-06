@@ -63,7 +63,9 @@
     "titlePlaceholder": "Macbeth",
     "subtitlePlaceholder": "A tragedy in five acts",
     "authorPlaceholder": "William Shakespeare",
-    "titlePageHint": "With a title, the PDF gets a title page, and the title becomes the suggested file name."
+    "titlePageHint": "With a title, the PDF gets a title page, and the title becomes the suggested file name.",
+    "language": "Text language",
+    "languageHint": "Used by the spell checker and to put names in capitals."
   },
   "cast": {
     "title": "Characters",

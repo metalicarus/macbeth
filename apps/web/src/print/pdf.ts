@@ -1,4 +1,4 @@
-import { layoutPlay, type LayoutOptions, type Play, type Span } from '@macbeth/core';
+import { layoutPlay, playLanguage, type LayoutOptions, type Play, type Span } from '@macbeth/core';
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, rgb, type PDFFont } from 'pdf-lib';
 
@@ -87,6 +87,7 @@ export async function playToPdf(
 
   doc.setTitle(play.titlePage.title || 'Macbeth');
   if (play.titlePage.author) doc.setAuthor(play.titlePage.author);
+  doc.setLanguage(playLanguage(play));
   doc.setCreator('Macbeth');
   doc.setProducer('Macbeth');
   return doc.save();
