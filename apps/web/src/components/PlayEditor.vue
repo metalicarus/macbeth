@@ -9,14 +9,17 @@ import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
 import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
 import { PlayKeymap } from '../editor/keymap';
+import { elementIdAt, goToElement } from '../editor/navigate';
 import { renameCues } from '../editor/rename';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
+import { useNavigation } from '../stores/navigation';
 import { usePlayStore } from '../stores/play';
 import CueSuggestList from './CueSuggestList.vue';
 
 const { t } = useI18n();
 const store = usePlayStore();
+const navigation = useNavigation();
 const page = ref<HTMLElement>();
 const suggestion = shallowRef<CueSuggestState>({ open: false, items: [], index: 0, from: 0 });
 
@@ -54,8 +57,20 @@ const editor = useEditor({
   editorProps: {
     attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
   },
-  onUpdate: ({ editor }) => store.applyDoc(editor.getJSON()),
+  onUpdate: ({ editor }) => {
+    store.applyDoc(editor.getJSON());
+    navigation.cursorElementId = elementIdAt(editor.state);
+  },
+  onSelectionUpdate: ({ editor }) => (navigation.cursorElementId = elementIdAt(editor.state)),
 });
+
+// Pedido de navegação vindo da lateral ou da tabela de cenas.
+watch(
+  () => navigation.request,
+  (request) => {
+    if (request && editor.value) goToElement(editor.value, request.id);
+  },
+);
 
 // Outra peça foi aberta (ou uma nova criada): o editor passa a mostrá-la, com o
 // histórico zerado, para que Ctrl+Z não tente desfazer edições da peça anterior.
