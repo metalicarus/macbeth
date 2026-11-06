@@ -22,8 +22,8 @@ export interface SavedFile {
 }
 
 export interface FileProvider {
-  /** Pede um arquivo .mbth; `null` se a pessoa cancelar. */
-  open(): Promise<OpenedFile | null>;
+  /** Pede um arquivo dos tipos indicados (por padrão, .mbth); `null` se a pessoa cancelar. */
+  open(types?: FileType[]): Promise<OpenedFile | null>;
   /**
    * Grava no arquivo `handle`; sem handle, pergunta onde salvar.
    * Devolve `null` se a pessoa cancelar.
@@ -39,6 +39,15 @@ export interface FileType {
 export const MBTH_EXTENSION = 'mbth';
 export const MBTH_FILE: FileType = { extension: MBTH_EXTENSION, mime: MBTH_MIME_TYPE };
 export const PDF_FILE: FileType = { extension: 'pdf', mime: 'application/pdf' };
+
+/** O que o Importar aceita: Word, LibreOffice e Fountain. */
+export const IMPORT_FILES: FileType[] = [
+  { extension: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+  { extension: 'odt', mime: 'application/vnd.oasis.opendocument.text' },
+  { extension: 'fountain', mime: 'text/plain' },
+  { extension: 'spmd', mime: 'text/plain' },
+  { extension: 'txt', mime: 'text/plain' },
+];
 
 /** Rótulo do filtro nas janelas de arquivo; o nome do app vale em qualquer língua. */
 export const FILTER_NAME = 'Macbeth';

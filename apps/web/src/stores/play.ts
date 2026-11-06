@@ -6,17 +6,20 @@ import {
   removeCharacter as removeFromCast,
   renameCharacter as renameInCast,
   setCharacterColor as recolorInCast,
+  summarizePlay,
   writeMbth,
   type Character,
   type Id,
   type Play,
+  type PlaySummary,
   type TitlePage,
 } from '@macbeth/core';
 import type { JSONContent } from '@tiptap/core';
 import { defineStore } from 'pinia';
 import { ref, shallowRef } from 'vue';
 import { docToPlay } from '../editor/convert';
-import { fileProvider, suggestedFileName, type FileHandle } from '../files';
+import { fileProvider, IMPORT_FILES, suggestedFileName, type FileHandle } from '../files';
+import { importPlay } from '../import';
 
 /** A peça aberta e o arquivo de onde ela veio. O editor escreve aqui a cada alteração. */
 export const usePlayStore = defineStore('play', () => {
@@ -60,6 +63,24 @@ export const usePlayStore = defineStore('play', () => {
     const { play: opened, extras: openedExtras } = readMbth(file.bytes);
     load(opened, { name: file.name, handle: file.handle, extras: openedExtras });
     return true;
+  }
+
+  /**
+   * Importa uma peça de .docx, .odt ou Fountain. Ela abre como peça nova,
+   * ainda sem arquivo .mbth e marcada como não salva. Sem título no
+   * documento, o nome do arquivo vira o título. Devolve o resumo do que foi
+   * reconhecido, ou `null` se a pessoa cancelar; erros chegam como ImportError.
+   */
+  async function importFrom(): Promise<PlaySummary | null> {
+    const file = await fileProvider().open(IMPORT_FILES);
+    if (!file) return null;
+    const imported = await importPlay(file.name, file.bytes);
+    if (!imported.titlePage.title) {
+      imported.titlePage = { ...imported.titlePage, title: file.name.replace(/\.[^.]+$/, '') };
+    }
+    load(imported, { name: null, handle: null, extras: {} });
+    dirty.value = true;
+    return summarizePlay(imported);
   }
 
   /**
@@ -143,6 +164,7 @@ export const usePlayStore = defineStore('play', () => {
     revision,
     newPlay,
     open,
+    importFrom,
     save,
     applyDoc,
     updateTitlePage,

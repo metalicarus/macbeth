@@ -211,3 +211,34 @@ describe('folha de rosto e personagens', () => {
     expect(store.play).toBe(before);
   });
 });
+
+describe('importar', () => {
+  it('abre a peça importada como nova, não salva, com o nome do arquivo como título', async () => {
+    fakeFiles({ name: 'A noite escocesa.fountain', bytes: strToU8('MACBETH\nOlá.\n\nBANQUO\nOi.') });
+    const store = usePlayStore();
+    const revision = store.revision;
+
+    const summary = await store.importFrom();
+
+    expect(summary).toEqual({ acts: 0, scenes: 0, characters: 2, speeches: 2 });
+    expect(store.play.titlePage.title).toBe('A noite escocesa');
+    expect(store.fileName).toBeNull();
+    expect(store.dirty).toBe(true);
+    expect(store.revision).toBe(revision + 1);
+  });
+
+  it('mantém o título que veio no documento', async () => {
+    fakeFiles({ name: 'rascunho.fountain', bytes: strToU8('Title: Macbeth\n\nMACBETH\nOlá.') });
+    const store = usePlayStore();
+    await store.importFrom();
+    expect(store.play.titlePage.title).toBe('Macbeth');
+  });
+
+  it('cancelar a janela não muda a peça aberta', async () => {
+    fakeFiles();
+    const store = usePlayStore();
+    const before = store.play;
+    expect(await store.importFrom()).toBeNull();
+    expect(store.play).toBe(before);
+  });
+});

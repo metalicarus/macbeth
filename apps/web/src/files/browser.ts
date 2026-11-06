@@ -28,18 +28,19 @@ async function toBytes(file: Blob): Promise<Uint8Array> {
   return new Uint8Array(await file.arrayBuffer());
 }
 
-function pickerTypes(type: FileType): PickerOptions['types'] {
-  return [{ description: FILTER_NAME, accept: { [type.mime]: [`.${type.extension}`] } }];
+function pickerTypes(types: FileType[]): PickerOptions['types'] {
+  const accept: Record<string, string[]> = {};
+  for (const t of types) (accept[t.mime] ??= []).push(`.${t.extension}`);
+  return [{ description: FILTER_NAME, accept }];
 }
 
 export function browserFiles(): FileProvider {
-
   if (hasFsAccess(window)) {
     const w = window;
     return {
-      async open() {
+      async open(types = [MBTH_FILE]) {
         try {
-          const [handle] = await w.showOpenFilePicker({ types: pickerTypes(MBTH_FILE) });
+          const [handle] = await w.showOpenFilePicker({ types: pickerTypes(types) });
           const file = await handle!.getFile();
           return { name: file.name, bytes: await toBytes(file), handle };
         } catch (error) {
@@ -53,7 +54,7 @@ export function browserFiles(): FileProvider {
           const target =
             handle instanceof FileSystemFileHandle
               ? handle
-              : await w.showSaveFilePicker({ suggestedName, types: pickerTypes(type) });
+              : await w.showSaveFilePicker({ suggestedName, types: pickerTypes([type]) });
           const writable = await target.createWritable();
           await writable.write(bytes as Uint8Array<ArrayBuffer>);
           await writable.close();
@@ -67,11 +68,11 @@ export function browserFiles(): FileProvider {
   }
 
   return {
-    open: () =>
+    open: (types = [MBTH_FILE]) =>
       new Promise((resolve) => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = `.${MBTH_FILE.extension}`;
+        input.accept = types.map((t) => `.${t.extension}`).join(',');
         input.addEventListener('change', async () => {
           const file = input.files?.[0];
           resolve(file ? { name: file.name, bytes: await toBytes(file), handle: null } : null);
