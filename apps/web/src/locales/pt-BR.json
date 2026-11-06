@@ -114,5 +114,16 @@
     "sceneCount": "Cenas",
     "mostPresent": "Em mais cenas",
     "inScenes": "nenhuma cena | 1 cena | {n} cenas"
+  },
+  "notes": {
+    "title": "Notas",
+    "add": "Nova nota",
+    "addHint": "Na fala ou rubrica onde está o cursor (Ctrl+Alt+M)",
+    "empty": "Ponha o cursor numa fala ou rubrica e crie uma nota. Ela fica presa ali, com um alfinete na margem.",
+    "needsElement": "Ponha o cursor numa fala ou rubrica para criar a nota.",
+    "placeholder": "Escreva a nota…",
+    "resolved": "Resolvida",
+    "remove": "Apagar nota {number}",
+    "goTo": "Ir até o trecho da nota {number}"
   }
 }

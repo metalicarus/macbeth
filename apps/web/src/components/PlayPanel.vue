@@ -3,6 +3,7 @@ import type { TitlePage } from '@macbeth/core';
 import { useI18n } from 'vue-i18n';
 import { usePlayStore } from '../stores/play';
 import CastList from './CastList.vue';
+import NotesList from './NotesList.vue';
 
 const { t } = useI18n();
 const store = usePlayStore();
@@ -33,6 +34,7 @@ function update(key: keyof TitlePage, event: Event) {
       </label>
       <p class="hint">{{ t('panel.titlePageHint') }}</p>
     </section>
+    <NotesList />
     <CastList />
   </aside>
 </template>

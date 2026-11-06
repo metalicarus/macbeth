@@ -114,5 +114,16 @@
     "sceneCount": "Escenas",
     "mostPresent": "En más escenas",
     "inScenes": "ninguna escena | 1 escena | {n} escenas"
+  },
+  "notes": {
+    "title": "Notas",
+    "add": "Nueva nota",
+    "addHint": "En el parlamento o la acotación donde está el cursor (Ctrl+Alt+M)",
+    "empty": "Pon el cursor en un parlamento o una acotación y crea una nota. Queda sujeta ahí, con un alfiler en el margen.",
+    "needsElement": "Pon el cursor en un parlamento o una acotación para crear la nota.",
+    "placeholder": "Escribe la nota…",
+    "resolved": "Resuelta",
+    "remove": "Borrar la nota {number}",
+    "goTo": "Ir al texto de la nota {number}"
   }
 }

@@ -3,6 +3,7 @@ import { suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
 import { EditorState } from '@tiptap/pm/state';
+import { Extension } from '@tiptap/core';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -11,9 +12,11 @@ import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
 import { CutCommand, toggleCut } from '../editor/cut';
 import { PlayKeymap } from '../editor/keymap';
 import { elementIdAt, goToElement } from '../editor/navigate';
+import { addNote, NotePins } from '../editor/notes';
 import { renameCues } from '../editor/rename';
 import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
+import { useEditorBridge } from '../stores/editor';
 import { useNavigation } from '../stores/navigation';
 import { usePlayStore } from '../stores/play';
 import { usePreferences } from '../stores/preferences';
@@ -23,6 +26,7 @@ const { t } = useI18n();
 const store = usePlayStore();
 const navigation = useNavigation();
 const preferences = usePreferences();
+const bridge = useEditorBridge();
 const page = ref<HTMLElement>();
 const suggestion = shallowRef<CueSuggestState>({ open: false, items: [], index: 0, from: 0 });
 
@@ -35,6 +39,26 @@ const PLACEHOLDER_KEYS: Record<string, string> = {
   speechLine: 'line',
 };
 
+/** Abre o painel na nota indicada (alfinete clicado ou nota recém-criada). */
+function showNote(id: string) {
+  preferences.panelOpen = true;
+  bridge.focusedNote = id;
+}
+
+// Ctrl+Alt+M: nova nota na fala ou rubrica onde está o cursor.
+const NoteShortcut = Extension.create({
+  name: 'noteShortcut',
+  addKeyboardShortcuts() {
+    return {
+      'Mod-Alt-m': () => {
+        const note = addNote(this.editor.state, this.editor.view.dispatch);
+        if (note) showNote(note.id);
+        return true;
+      },
+    };
+  },
+});
+
 const editor = useEditor({
   extensions: [
     ...playExtensions,
@@ -42,6 +66,8 @@ const editor = useEditor({
     UniqueIds,
     PlayKeymap,
     CutCommand,
+    NotePins.configure({ onOpen: showNote }),
+    NoteShortcut,
     CueSuggest.configure({
       suggest: (query) => suggestCharacters(store.play, query),
       onChange: (state) => (suggestion.value = state),
@@ -61,6 +87,7 @@ const editor = useEditor({
   editorProps: {
     attributes: { class: 'script', spellcheck: 'true', lang: 'pt-BR' },
   },
+  onCreate: ({ editor }) => (bridge.editor = editor),
   onUpdate: ({ editor }) => {
     store.applyDoc(editor.getJSON());
     navigation.cursorElementId = elementIdAt(editor.state);
@@ -117,7 +144,10 @@ function cut() {
   ed.view.focus();
 }
 
-onBeforeUnmount(() => editor.value?.destroy());
+onBeforeUnmount(() => {
+  bridge.editor = null;
+  editor.value?.destroy();
+});
 </script>
 
 <template>
@@ -207,6 +237,33 @@ onBeforeUnmount(() => editor.value?.destroy());
   color: var(--cut);
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
+}
+
+/* Alfinete de nota na margem, à esquerda do elemento. */
+.page :deep(.el) {
+  position: relative;
+}
+
+.page :deep(.notepin) {
+  position: absolute;
+  left: -46px;
+  top: 0;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 11px;
+  background: var(--note);
+  color: var(--note-ink);
+  border: 1px solid color-mix(in srgb, var(--note-ink) 30%, transparent);
+  font: 700 10.5px/20px var(--font-label);
+  font-style: normal;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.page :deep(.notepin.resolved) {
+  opacity: 0.45;
 }
 
 .page :deep(.script) {

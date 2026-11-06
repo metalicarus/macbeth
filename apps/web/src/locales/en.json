@@ -114,5 +114,16 @@
     "sceneCount": "Scenes",
     "mostPresent": "In most scenes",
     "inScenes": "no scenes | 1 scene | {n} scenes"
+  },
+  "notes": {
+    "title": "Notes",
+    "add": "New note",
+    "addHint": "On the line or stage direction where the cursor is (Ctrl+Alt+M)",
+    "empty": "Put the cursor on a line or stage direction and add a note. It stays attached there, with a pin in the margin.",
+    "needsElement": "Put the cursor on a line or stage direction to add the note.",
+    "placeholder": "Write the note…",
+    "resolved": "Resolved",
+    "remove": "Delete note {number}",
+    "goTo": "Go to the text of note {number}"
   }
 }
