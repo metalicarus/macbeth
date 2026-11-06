@@ -8,6 +8,7 @@ import { onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { playToDoc } from '../editor/convert';
 import { CueSuggest, type CueSuggestState } from '../editor/cue-suggest';
+import { CutCommand, toggleCut } from '../editor/cut';
 import { PlayKeymap } from '../editor/keymap';
 import { elementIdAt, goToElement } from '../editor/navigate';
 import { renameCues } from '../editor/rename';
@@ -15,11 +16,13 @@ import { playExtensions } from '../editor/schema';
 import { UniqueIds } from '../editor/unique-ids';
 import { useNavigation } from '../stores/navigation';
 import { usePlayStore } from '../stores/play';
+import { usePreferences } from '../stores/preferences';
 import CueSuggestList from './CueSuggestList.vue';
 
 const { t } = useI18n();
 const store = usePlayStore();
 const navigation = useNavigation();
+const preferences = usePreferences();
 const page = ref<HTMLElement>();
 const suggestion = shallowRef<CueSuggestState>({ open: false, items: [], index: 0, from: 0 });
 
@@ -38,6 +41,7 @@ const editor = useEditor({
     UndoRedo,
     UniqueIds,
     PlayKeymap,
+    CutCommand,
     CueSuggest.configure({
       suggest: (query) => suggestCharacters(store.play, query),
       onChange: (state) => (suggestion.value = state),
@@ -106,29 +110,103 @@ watch(
   },
 );
 
+function cut() {
+  const ed = editor.value;
+  if (!ed) return;
+  toggleCut(ed.state, ed.view.dispatch);
+  ed.view.focus();
+}
+
 onBeforeUnmount(() => editor.value?.destroy());
 </script>
 
 <template>
-  <div ref="page" class="page fmt-inline">
+  <div class="toolbar">
+    <!-- mousedown.prevent mantém a seleção do texto ao clicar no botão. -->
+    <button type="button" :title="t('editor.toolbar.cutHint')" @mousedown.prevent @click="cut">
+      {{ t('editor.toolbar.cut') }} <kbd>Ctrl+Shift+X</kbd>
+    </button>
+    <label><input v-model="preferences.showCuts" type="checkbox" /> {{ t('editor.toolbar.showCuts') }}</label>
+  </div>
+  <div ref="page" class="page fmt-inline" :class="{ 'hide-cuts': !preferences.showCuts }">
     <EditorContent :editor="editor" />
     <CueSuggestList v-if="editor && page && suggestion.open" :editor="editor" :state="suggestion" :container="page" />
   </div>
 </template>
 
 <style scoped>
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 2px;
+  background: var(--desk);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.toolbar button {
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--page);
+  color: var(--ink);
+}
+
+.toolbar kbd {
+  font: 500 10px/1 var(--font-label);
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar input {
+  accent-color: var(--accent);
+}
+
 .page {
   position: relative;
   background: var(--page);
   max-width: 640px;
   min-height: 900px;
-  margin: 28px auto 60px;
+  margin: 6px auto 60px;
   padding: 56px 64px 72px;
   box-shadow:
     0 1px 3px rgb(0 0 0 / 12%),
     0 12px 32px -16px rgb(0 0 0 / 25%);
   font: 400 14.5px/1.55 var(--font-script);
   color: var(--ink);
+}
+
+/* Corte da direção: o texto continua, riscado em vermelho; pode sumir da tela. */
+.page :deep(.cut) {
+  color: var(--cut);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.page.hide-cuts :deep(.cut),
+.page.hide-cuts :deep(.fully-cut) {
+  display: none;
+}
+
+/* Fala cortada inteira: o nome e o parentético também aparecem riscados. */
+.page :deep(.fully-cut .speech-cue),
+.page :deep(.fully-cut .speech-parenthetical),
+.page :deep(.el-direction.fully-cut) {
+  color: var(--cut);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
 }
 
 .page :deep(.script) {

@@ -19,6 +19,11 @@
     "suggest": {
       "label": "Sugestões de personagem",
       "speeches": "nenhuma fala | {n} fala | {n} falas"
+    },
+    "toolbar": {
+      "cut": "Cortar",
+      "cutHint": "Corta o trecho selecionado ou, sem seleção, a fala inteira. De novo, desfaz o corte. (Ctrl+Shift+X)",
+      "showCuts": "Mostrar cortes"
     }
   },
   "file": {

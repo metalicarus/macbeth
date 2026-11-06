@@ -19,6 +19,11 @@
     "suggest": {
       "label": "Sugerencias de personaje",
       "speeches": "ningún parlamento | {n} parlamento | {n} parlamentos"
+    },
+    "toolbar": {
+      "cut": "Cortar",
+      "cutHint": "Corta el texto seleccionado o, sin selección, el parlamento entero. Otra vez, deshace el corte. (Ctrl+Shift+X)",
+      "showCuts": "Mostrar cortes"
     }
   },
   "file": {

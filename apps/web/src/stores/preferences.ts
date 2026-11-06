@@ -6,6 +6,7 @@ export type Look = 'papel' | 'coxia';
 const LOOK_KEY = 'macbeth.look';
 const PANEL_KEY = 'macbeth.panel';
 const OUTLINE_KEY = 'macbeth.outline';
+const CUTS_KEY = 'macbeth.cuts';
 
 function initialLook(): Look {
   try {
@@ -40,6 +41,8 @@ export const usePreferences = defineStore('preferences', () => {
   const panelOpen = ref(initiallyOpen(PANEL_KEY));
   /** A lateral "Sumário", com atos e cenas. */
   const outlineOpen = ref(initiallyOpen(OUTLINE_KEY));
+  /** Trechos cortados aparecem riscados no texto; desligado, somem da tela. */
+  const showCuts = ref(initiallyOpen(CUTS_KEY));
 
   watch(
     look,
@@ -56,6 +59,7 @@ export const usePreferences = defineStore('preferences', () => {
 
   watch(panelOpen, (open) => remember(PANEL_KEY, open));
   watch(outlineOpen, (open) => remember(OUTLINE_KEY, open));
+  watch(showCuts, (show) => remember(CUTS_KEY, show));
 
-  return { look, panelOpen, outlineOpen };
+  return { look, panelOpen, outlineOpen, showCuts };
 });

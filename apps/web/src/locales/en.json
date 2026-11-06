@@ -19,6 +19,11 @@
     "suggest": {
       "label": "Character suggestions",
       "speeches": "no lines | {n} line | {n} lines"
+    },
+    "toolbar": {
+      "cut": "Cut",
+      "cutHint": "Cuts the selected text or, with no selection, the whole line. Again to restore it. (Ctrl+Shift+X)",
+      "showCuts": "Show cuts"
     }
   },
   "file": {
