@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FileActions from './components/FileActions.vue';
 import LookToggle from './components/LookToggle.vue';
@@ -9,6 +9,7 @@ import NoticeBar from './components/NoticeBar.vue';
 import OutlinePane from './components/OutlinePane.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
+import ShortcutsDialog from './components/ShortcutsDialog.vue';
 import StructureView from './components/StructureView.vue';
 import { guardUnsavedClose } from './files/close-guard';
 import { useNavigation } from './stores/navigation';
@@ -32,6 +33,19 @@ onMounted(() =>
     () => t('file.confirmClose'),
   ),
 );
+
+// Mapa de atalhos: botão "?", Ctrl+/ ou F1.
+const shortcutsOpen = ref(false);
+
+function onKeydown(event: KeyboardEvent) {
+  const isHelp = event.key === 'F1' || ((event.ctrlKey || event.metaKey) && event.key === '/');
+  if (!isHelp) return;
+  event.preventDefault();
+  shortcutsOpen.value = !shortcutsOpen.value;
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
 
 <template>
@@ -53,7 +67,17 @@ onMounted(() =>
       <button type="button" class="panel-toggle" :aria-pressed="panelOpen" @click="panelOpen = !panelOpen">
         {{ t('panel.toggle') }}
       </button>
+      <button
+        type="button"
+        class="help"
+        :aria-label="t('shortcuts.open')"
+        :title="`${t('shortcuts.open')} (Ctrl+/)`"
+        @click="shortcutsOpen = true"
+      >
+        ?
+      </button>
     </header>
+    <ShortcutsDialog v-model:open="shortcutsOpen" />
     <div class="body" :style="{ gridTemplateColumns: columns }">
       <NoticeBar />
       <OutlinePane v-if="showOutline" />
@@ -136,6 +160,19 @@ onMounted(() =>
 
 .panel-toggle[aria-pressed='true'] {
   background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.help {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font: 600 13px/1 var(--font-ui);
+  color: var(--muted);
+}
+
+.help:hover {
   color: var(--ink);
 }
 

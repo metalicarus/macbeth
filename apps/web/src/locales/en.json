@@ -130,5 +130,46 @@
     "resolved": "Resolved",
     "remove": "Delete note {number}",
     "goTo": "Go to the text of note {number}"
+  },
+  "shortcuts": {
+    "title": "Shortcuts",
+    "open": "Keyboard shortcuts",
+    "close": "Close",
+    "intro": "In the text, Enter and Tab pick the next element for you: the formatting follows your typing.",
+    "groups": {
+      "file": "File",
+      "writing": "Writing",
+      "suggestions": "Character suggestions",
+      "editing": "Editing",
+      "help": "Help"
+    },
+    "items": {
+      "new": "New play",
+      "open": "Open .mbth file",
+      "import": "Import .docx, .odt or Fountain",
+      "save": "Save",
+      "saveAs": "Save as…",
+      "pdfShow": "Performance PDF (without cuts)",
+      "pdfDirector": "Director's PDF (cuts struck through)",
+      "enterNext": "At the end of an element, creates the next one: act → scene → stage direction → line → another line",
+      "enterCue": "In the character name or parenthetical, goes to the line text",
+      "enterEmptyCue": "With an empty character name, turns the line into a stage direction",
+      "verseBreak": "Breaks the verse without leaving the line",
+      "tabForward": "In a line, moves forward: character → parenthetical → text",
+      "tabDirection": "In a stage direction, turns it into a line (the text becomes the character name)",
+      "tabBack": "Goes back to the character name; in an empty line, turns it back into a stage direction",
+      "backspace": "At the start of a part of the line, goes back to the previous part",
+      "parenthesis": "In an empty name, becomes a stage direction; in empty line text, opens the parenthetical",
+      "fountain": "In a stage direction written as \"Act II\", \"Scene 3\" or \"MACBETH\", turns it into an act, scene or line",
+      "suggestMove": "Picks another character from the list",
+      "suggestAccept": "Accepts and goes to the line text",
+      "suggestParenthetical": "Accepts and goes to the parenthetical",
+      "suggestClose": "Closes the list",
+      "undo": "Undo",
+      "redo": "Redo",
+      "cut": "Cuts the selected text or, with no selection, the whole line; again to restore it",
+      "note": "New note on the line or stage direction where the cursor is",
+      "shortcuts": "Shows these shortcuts"
+    }
   }
 }

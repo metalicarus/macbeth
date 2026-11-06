@@ -130,5 +130,46 @@
     "resolved": "Resuelta",
     "remove": "Borrar la nota {number}",
     "goTo": "Ir al texto de la nota {number}"
+  },
+  "shortcuts": {
+    "title": "Atajos",
+    "open": "Atajos de teclado",
+    "close": "Cerrar",
+    "intro": "En el texto, Enter y Tab eligen solos el siguiente elemento: el formato acompaña lo que escribes.",
+    "groups": {
+      "file": "Archivo",
+      "writing": "Escribir",
+      "suggestions": "Sugerencias de personaje",
+      "editing": "Edición",
+      "help": "Ayuda"
+    },
+    "items": {
+      "new": "Nueva obra",
+      "open": "Abrir archivo .mbth",
+      "import": "Importar .docx, .odt o Fountain",
+      "save": "Guardar",
+      "saveAs": "Guardar como…",
+      "pdfShow": "PDF del espectáculo (sin los cortes)",
+      "pdfDirector": "PDF de la dirección (cortes tachados)",
+      "enterNext": "Al final de un elemento, crea el siguiente: acto → escena → acotación → parlamento → otro parlamento",
+      "enterCue": "En el nombre del personaje o en la acotación, va al texto del parlamento",
+      "enterEmptyCue": "Con el nombre del personaje vacío, convierte el parlamento en acotación",
+      "verseBreak": "Corta el verso sin salir del parlamento",
+      "tabForward": "En el parlamento, avanza: personaje → acotación → texto",
+      "tabDirection": "En una acotación, la convierte en parlamento (el texto pasa a ser el nombre del personaje)",
+      "tabBack": "Vuelve al nombre del personaje; en un parlamento vacío, vuelve a ser acotación",
+      "backspace": "Al inicio de una parte del parlamento, vuelve a la parte anterior",
+      "parenthesis": "En el nombre vacío, pasa a acotación; en el texto vacío, abre la acotación del parlamento",
+      "fountain": "En una acotación escrita como \"Acto II\", \"Escena 3\" o \"MACBETH\", la convierte en acto, escena o parlamento",
+      "suggestMove": "Elige otro personaje de la lista",
+      "suggestAccept": "Acepta y va al texto del parlamento",
+      "suggestParenthetical": "Acepta y va a la acotación",
+      "suggestClose": "Cierra la lista",
+      "undo": "Deshacer",
+      "redo": "Rehacer",
+      "cut": "Corta el texto seleccionado o, sin selección, el parlamento entero; otra vez, deshace el corte",
+      "note": "Nueva nota en el parlamento o la acotación donde está el cursor",
+      "shortcuts": "Muestra estos atajos"
+    }
   }
 }

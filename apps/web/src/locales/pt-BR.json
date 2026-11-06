@@ -130,5 +130,46 @@
     "resolved": "Resolvida",
     "remove": "Apagar nota {number}",
     "goTo": "Ir até o trecho da nota {number}"
+  },
+  "shortcuts": {
+    "title": "Atalhos",
+    "open": "Atalhos de teclado",
+    "close": "Fechar",
+    "intro": "No texto, Enter e Tab escolhem o próximo elemento sozinhos: a formatação acompanha a digitação.",
+    "groups": {
+      "file": "Arquivo",
+      "writing": "Escrever",
+      "suggestions": "Sugestões de personagem",
+      "editing": "Edição",
+      "help": "Ajuda"
+    },
+    "items": {
+      "new": "Nova peça",
+      "open": "Abrir arquivo .mbth",
+      "import": "Importar .docx, .odt ou Fountain",
+      "save": "Salvar",
+      "saveAs": "Salvar como…",
+      "pdfShow": "PDF do espetáculo (sem os cortes)",
+      "pdfDirector": "PDF da direção (cortes riscados)",
+      "enterNext": "No fim de um elemento, cria o próximo: ato → cena → rubrica → fala → outra fala",
+      "enterCue": "No nome do personagem ou no parentético, vai para o texto da fala",
+      "enterEmptyCue": "Com o nome do personagem vazio, transforma a fala em rubrica",
+      "verseBreak": "Quebra o verso sem sair da fala",
+      "tabForward": "Na fala, avança: personagem → parentético → texto",
+      "tabDirection": "Numa rubrica, transforma em fala (o texto vira o nome do personagem)",
+      "tabBack": "Volta para o nome do personagem; numa fala vazia, volta a ser rubrica",
+      "backspace": "No começo de uma parte da fala, volta para a parte anterior",
+      "parenthesis": "No nome vazio, vira rubrica; no texto vazio da fala, abre o parentético",
+      "fountain": "Numa rubrica escrita como \"Ato II\", \"Cena 3\" ou \"MACBETH\", transforma em ato, cena ou fala",
+      "suggestMove": "Escolhe outro personagem da lista",
+      "suggestAccept": "Aceita e vai para o texto da fala",
+      "suggestParenthetical": "Aceita e vai para o parentético",
+      "suggestClose": "Fecha a lista",
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "cut": "Corta o trecho selecionado ou, sem seleção, a fala inteira; de novo, desfaz o corte",
+      "note": "Nova nota na fala ou rubrica onde está o cursor",
+      "shortcuts": "Mostra estes atalhos"
+    }
   }
 }
