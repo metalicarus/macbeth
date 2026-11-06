@@ -62,12 +62,12 @@ function recolor(id: Id, color: string) {
               :aria-label="t('cast.color', { name: character.name })"
             />
             <PopoverPortal>
-              <PopoverContent class="palette" side="bottom" align="start" :side-offset="6">
+              <PopoverContent class="cast-palette" side="bottom" align="start" :side-offset="6">
                 <button
                   v-for="color in CHARACTER_COLORS"
                   :key="color"
                   type="button"
-                  class="swatch"
+                  class="cast-swatch"
                   :style="{ background: color }"
                   :aria-label="color"
                   :aria-pressed="color === character.color"
@@ -154,23 +154,6 @@ ul {
   cursor: pointer;
 }
 
-.palette {
-  display: grid;
-  grid-template-columns: repeat(4, 14px);
-  gap: 8px;
-  padding: 10px;
-  background: var(--page);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 35%);
-  z-index: 10;
-}
-
-.palette .swatch[aria-pressed='true'] {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-
 input {
   font: inherit;
   min-width: 0;
@@ -240,5 +223,34 @@ small {
 .error {
   color: var(--cut);
   padding-left: 22px;
+}
+</style>
+
+<!-- A paleta é desenhada fora do componente (portal), onde estilos com escopo não chegam. -->
+<style>
+.cast-swatch {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: 3px;
+  border: 0;
+  cursor: pointer;
+}
+
+.cast-palette {
+  display: grid;
+  grid-template-columns: repeat(4, 14px);
+  gap: 8px;
+  padding: 10px;
+  background: var(--page);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 35%);
+  z-index: 10;
+}
+
+.cast-palette .cast-swatch[aria-pressed='true'] {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 </style>
