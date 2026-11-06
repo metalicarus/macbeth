@@ -65,7 +65,8 @@
     "authorPlaceholder": "William Shakespeare",
     "titlePageHint": "Con título, el PDF tiene portada y el título se usa como nombre sugerido del archivo.",
     "language": "Idioma del texto",
-    "languageHint": "Lo usa el corrector ortográfico y para poner los nombres en mayúsculas."
+    "languageHint": "Lo usa el corrector ortográfico y para poner los nombres en mayúsculas.",
+    "noSpellcheck": "Todavía no hay corrector ortográfico para este idioma."
   },
   "cast": {
     "title": "Personajes",

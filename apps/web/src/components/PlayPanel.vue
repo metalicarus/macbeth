@@ -2,6 +2,7 @@
 import { PLAY_LANGUAGES, playLanguage, type TitlePage } from '@macbeth/core';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { dictionaryFor } from '../spell/dictionaries';
 import { usePlayStore } from '../stores/play';
 import CastList from './CastList.vue';
 import NotesList from './NotesList.vue';
@@ -55,6 +56,7 @@ function update(key: keyof TitlePage, event: Event) {
           <option v-for="language in languages" :key="language.code" :value="language.code">{{ language.label }}</option>
         </select>
       </label>
+      <p v-if="!dictionaryFor(playLanguage(store.play))" class="hint warn">{{ t('panel.noSpellcheck') }}</p>
       <p class="hint">{{ t('panel.titlePageHint') }} {{ t('panel.languageHint') }}</p>
     </section>
     <NotesList />
@@ -116,5 +118,9 @@ input::placeholder {
   margin: 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+.hint.warn {
+  color: var(--cut);
 }
 </style>
