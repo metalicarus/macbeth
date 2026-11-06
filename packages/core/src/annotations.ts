@@ -1,5 +1,5 @@
-import { newId } from './ids';
-import type { Note, SceneElement, TextRange } from './model';
+import { newId, type Id } from './ids';
+import type { Note, Play, SceneElement, TextRange } from './model';
 
 /** Cortes em ordem, sem sobreposição e dentro do texto. */
 export function normalizeCuts(cuts: readonly TextRange[], length: number): TextRange[] {
@@ -46,4 +46,40 @@ export function isFullyCut(element: SceneElement): boolean {
 
 export function createNote(text = ''): Note {
   return { id: newId(), text, createdAt: new Date().toISOString() };
+}
+
+export interface NoteEntry {
+  note: Note;
+  /** Número da nota na ordem da peça, a partir de 1 (o mesmo do alfinete na margem). */
+  number: number;
+  elementId: Id;
+  /** Começo do trecho a que a nota pertence, para reconhecê-lo na lista. */
+  excerpt: string;
+}
+
+const EXCERPT_LENGTH = 60;
+
+function shorten(text: string): string {
+  const flat = text.replace(/\s+/g, ' ').trim();
+  return flat.length > EXCERPT_LENGTH ? `${flat.slice(0, EXCERPT_LENGTH - 1).trimEnd()}…` : flat;
+}
+
+/** Todas as notas da peça, na ordem do texto, numeradas. */
+export function listNotes(play: Play): NoteEntry[] {
+  const names = new Map(play.characters.map((c) => [c.id, c.name]));
+  const entries: NoteEntry[] = [];
+  for (const act of play.acts) {
+    for (const scene of act.scenes) {
+      for (const element of scene.elements) {
+        const excerpt =
+          element.type === 'speech'
+            ? `${(names.get(element.characterId) ?? '').toLocaleUpperCase('pt-BR')} – ${shorten(element.text)}`
+            : `(${shorten(element.text)})`;
+        for (const note of element.notes ?? []) {
+          entries.push({ note, number: entries.length + 1, elementId: element.id, excerpt });
+        }
+      }
+    }
+  }
+  return entries;
 }

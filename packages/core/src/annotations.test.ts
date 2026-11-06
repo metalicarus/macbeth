@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createNote, isFullyCut, normalizeCuts, splitByCuts, textWithoutCuts } from './annotations';
+import { createNote, isFullyCut, listNotes, normalizeCuts, splitByCuts, textWithoutCuts } from './annotations';
+import { createPlay } from './model';
 import type { SceneElement } from './model';
 
 describe('normalizeCuts', () => {
@@ -52,5 +53,26 @@ describe('createNote', () => {
     expect(note.text).toBe('Pausa longa antes da fala.');
     expect(note.id).toBeTruthy();
     expect(Number.isNaN(Date.parse(note.createdAt))).toBe(false);
+  });
+});
+
+describe('listNotes', () => {
+  it('lista as notas na ordem da peça, numeradas, com o começo do trecho', () => {
+    const play = {
+      ...createPlay(),
+      characters: [{ id: 'm', name: 'Macbeth', color: '#D64541' }],
+    };
+    const note = (id: string, text: string) => ({ id, text, createdAt: '2026-11-05' });
+    play.acts[0]!.scenes[0]!.elements = [
+      { id: 'd1', type: 'direction', text: 'Trovão.', notes: [note('n1', 'Som gravado.')] },
+      { id: 'f1', type: 'speech', characterId: 'm', text: 'Dia tão feio e tão belo eu nunca vi, nem nunca verei outro igual nesta charneca.', notes: [note('n2', 'Pausa.'), note('n3', 'Olhar para Banquo.')] },
+      { id: 'd2', type: 'direction', text: 'Saem.' },
+    ];
+
+    expect(listNotes(play).map((e) => [e.number, e.note.id, e.elementId, e.excerpt])).toEqual([
+      [1, 'n1', 'd1', '(Trovão.)'],
+      [2, 'n2', 'f1', 'MACBETH – Dia tão feio e tão belo eu nunca vi, nem nunca verei outro…'],
+      [3, 'n3', 'f1', 'MACBETH – Dia tão feio e tão belo eu nunca vi, nem nunca verei outro…'],
+    ]);
   });
 });
