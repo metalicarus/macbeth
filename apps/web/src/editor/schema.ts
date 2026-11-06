@@ -1,4 +1,4 @@
-import { Node, type Extensions } from '@tiptap/core';
+import { Mark, Node, type Extensions } from '@tiptap/core';
 import Document from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
 import Text from '@tiptap/extension-text';
@@ -11,7 +11,8 @@ import Text from '@tiptap/extension-text';
  * A fala é o único elemento com partes: personagem, parentético opcional e o
  * texto. Na formatação "Em linha" as três aparecem na mesma linha.
  *
- * Nenhum elemento aceita negrito ou itálico: a aparência vem do tipo.
+ * Nenhum elemento aceita negrito ou itálico: a aparência vem do tipo. A
+ * única marcação é o corte, no texto da rubrica e da fala.
  */
 
 // Atributos que existem só no documento, sem aparecer no HTML.
@@ -19,6 +20,20 @@ const hidden = { default: null, rendered: false } as const;
 
 /** `extra` guarda campos do .mbth que esta versão não conhece, para devolvê-los ao salvar. */
 const identity = { id: hidden, extra: hidden };
+
+/** Rubricas e falas carregam também as notas pessoais. */
+const annotated = { ...identity, notes: hidden };
+
+/**
+ * Trecho cortado pela direção. O texto continua no documento; o corte só o
+ * marca (riscado em vermelho) e o tira do PDF do espetáculo.
+ */
+export const Cut = Mark.create({
+  name: 'cut',
+  inclusive: false,
+  parseHTML: () => [{ tag: 'span.cut' }],
+  renderHTML: () => ['span', { class: 'cut' }, 0],
+});
 
 const PlayDocument = Document.extend({ content: 'playElement+' });
 
@@ -48,8 +63,8 @@ export const Direction = Node.create({
   name: 'direction',
   group: 'playElement',
   content: 'text*',
-  marks: '',
-  addAttributes: () => identity,
+  marks: 'cut',
+  addAttributes: () => annotated,
   parseHTML: () => [{ tag: 'p[data-type="direction"]' }],
   renderHTML: () => ['p', { 'data-type': 'direction', class: 'el el-direction' }, 0],
 });
@@ -59,7 +74,7 @@ export const Speech = Node.create({
   group: 'playElement',
   content: 'speechCue speechParenthetical? speechLine',
   marks: '',
-  addAttributes: () => identity,
+  addAttributes: () => annotated,
   parseHTML: () => [{ tag: 'div[data-type="speech"]' }],
   renderHTML: () => ['div', { 'data-type': 'speech', class: 'el el-speech' }, 0],
 });
@@ -87,7 +102,7 @@ export const SpeechParenthetical = Node.create({
 export const SpeechLine = Node.create({
   name: 'speechLine',
   content: 'inline*',
-  marks: '',
+  marks: 'cut',
   parseHTML: () => [{ tag: 'span[data-type="speech-line"]' }],
   renderHTML: () => ['span', { 'data-type': 'speech-line', class: 'speech-line' }, 0],
 });
@@ -96,6 +111,7 @@ export const playExtensions: Extensions = [
   PlayDocument,
   Text,
   HardBreak,
+  Cut,
   Act,
   Scene,
   Direction,

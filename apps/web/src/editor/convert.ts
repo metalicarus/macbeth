@@ -4,10 +4,13 @@ import {
   findCharacterByName,
   newId,
   normalizeName,
+  splitByCuts,
   type Act,
+  type Note,
   type Play,
   type Scene,
   type SceneElement,
+  type TextRange,
 } from '@macbeth/core';
 import type { JSONContent } from '@tiptap/core';
 
@@ -28,8 +31,10 @@ function extraOf(value: object, known: readonly string[]): Extra {
 
 const ACT_KEYS = ['id', 'title', 'scenes'] as const;
 const SCENE_KEYS = ['id', 'title', 'place', 'elements'] as const;
-const DIRECTION_KEYS = ['id', 'type', 'text'] as const;
-const SPEECH_KEYS = ['id', 'type', 'characterId', 'parenthetical', 'text'] as const;
+const DIRECTION_KEYS = ['id', 'type', 'text', 'cuts', 'notes'] as const;
+const SPEECH_KEYS = ['id', 'type', 'characterId', 'parenthetical', 'text', 'cuts', 'notes'] as const;
+
+const CUT_MARK = [{ type: 'cut' }];
 
 /** Texto simples, com quebras de verso ("\n") virando hardBreak. */
 function inline(text: string): JSONContent[] {
@@ -40,8 +45,11 @@ function inline(text: string): JSONContent[] {
   });
 }
 
-function withContent(node: JSONContent, text: string): JSONContent {
-  const content = inline(text);
+function withContent(node: JSONContent, text: string, cuts?: TextRange[]): JSONContent {
+  // Cada trecho cortado vira texto com a marcação "cut", inclusive as quebras de verso dentro dele.
+  const content = splitByCuts(text, cuts).flatMap((part) =>
+    inline(part.text).map((child) => (part.cut ? { ...child, marks: CUT_MARK } : child)),
+  );
   return content.length > 0 ? { ...node, content } : node;
 }
 
@@ -51,20 +59,45 @@ function textOf(node: JSONContent | undefined): string {
     .join('');
 }
 
+/** Trechos com a marcação de corte, em posições do texto (a quebra de verso conta 1). */
+function cutsOf(node: JSONContent | undefined): TextRange[] {
+  const cuts: TextRange[] = [];
+  let at = 0;
+  for (const child of node?.content ?? []) {
+    const length = child.type === 'hardBreak' ? 1 : (child.text?.length ?? 0);
+    if (child.marks?.some((m) => m.type === 'cut')) {
+      const last = cuts.at(-1);
+      if (last && last.to === at) last.to += length;
+      else cuts.push({ from: at, to: at + length });
+    }
+    at += length;
+  }
+  return cuts;
+}
+
+/** Cortes e notas só entram no modelo quando existem. */
+function annotations(cuts: TextRange[], notes: unknown): { cuts?: TextRange[]; notes?: Note[] } {
+  return {
+    ...(cuts.length > 0 ? { cuts } : {}),
+    ...(Array.isArray(notes) && notes.length > 0 ? { notes: notes as Note[] } : {}),
+  };
+}
+
 function elementToNode(element: SceneElement, names: Map<string, string>): JSONContent {
   if (element.type === 'direction') {
     return withContent(
-      { type: 'direction', attrs: { id: element.id, extra: extraOf(element, DIRECTION_KEYS) } },
+      { type: 'direction', attrs: { id: element.id, notes: element.notes ?? null, extra: extraOf(element, DIRECTION_KEYS) } },
       element.text,
+      element.cuts,
     );
   }
   return {
     type: 'speech',
-    attrs: { id: element.id, extra: extraOf(element, SPEECH_KEYS) },
+    attrs: { id: element.id, notes: element.notes ?? null, extra: extraOf(element, SPEECH_KEYS) },
     content: [
       withContent({ type: 'speechCue', attrs: { characterId: element.characterId } }, names.get(element.characterId) ?? ''),
       ...(element.parenthetical ? [withContent({ type: 'speechParenthetical' }, element.parenthetical)] : []),
-      withContent({ type: 'speechLine' }, element.text),
+      withContent({ type: 'speechLine' }, element.text, element.cuts),
     ],
   };
 }
@@ -141,21 +174,28 @@ export function docToPlay(doc: JSONContent, base: Play): Play {
       }
 
       case 'direction':
-        currentScene().elements.push({ ...extra, id, type: 'direction', text: textOf(node) });
+        currentScene().elements.push({
+          ...extra,
+          id,
+          type: 'direction',
+          text: textOf(node),
+          ...annotations(cutsOf(node), attrs.notes),
+        });
         break;
 
       case 'speech': {
         const parts = node.content ?? [];
         const cue = parts.find((p) => p.type === 'speechCue');
         const parenthetical = textOf(parts.find((p) => p.type === 'speechParenthetical'));
-        const text = textOf(parts.find((p) => p.type === 'speechLine'));
+        const line = parts.find((p) => p.type === 'speechLine');
+        const text = textOf(line);
 
         const resolved = resolveCharacter(play, (cue?.attrs?.characterId as string | null) ?? null, textOf(cue));
         play = resolved.play;
 
         if (!resolved.characterId) {
           // Fala sem personagem: guarda o texto como rubrica para não perdê-lo.
-          currentScene().elements.push({ id, type: 'direction', text });
+          currentScene().elements.push({ id, type: 'direction', text, ...annotations(cutsOf(line), attrs.notes) });
           break;
         }
         currentScene().elements.push({
@@ -165,6 +205,7 @@ export function docToPlay(doc: JSONContent, base: Play): Play {
           characterId: resolved.characterId,
           ...(parenthetical ? { parenthetical } : {}),
           text,
+          ...annotations(cutsOf(line), attrs.notes),
         });
         break;
       }

@@ -107,6 +107,26 @@ describe('Enter', () => {
     expect(cursor()).toBe('0.speechLine@0');
   });
 
+  it('fala com verso quebrado e corte vira rubrica válida, com a quebra virando espaço', () => {
+    open({
+      type: 'speech',
+      attrs: { id: 'f1', notes: [{ id: 'n1', text: 'Pausa.', createdAt: '2026-11-05' }] },
+      content: [
+        { type: 'speechCue' },
+        {
+          type: 'speechLine',
+          content: [{ type: 'text', text: 'Dia feio' }, { type: 'hardBreak' }, { type: 'text', text: 'e belo', marks: [{ type: 'cut' }] }],
+        },
+      ],
+    });
+    place(0, 'speechCue', 'start');
+    press(enter);
+
+    editor.state.doc.check();
+    expect(shape()).toEqual(['direction:Dia feio e belo']);
+    expect(editor.state.doc.child(0).attrs).toMatchObject({ id: 'f1', notes: [{ id: 'n1' }] });
+  });
+
   it('com o personagem vazio transforma a fala em rubrica', () => {
     open(direction('Antes.'), speech('', ''));
     place(1, 'speechCue', 'start');

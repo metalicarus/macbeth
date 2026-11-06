@@ -1,5 +1,5 @@
 import { Extension } from '@tiptap/core';
-import type { Node as PMNode, ResolvedPos, Schema } from '@tiptap/pm/model';
+import { Fragment, type Node as PMNode, type ResolvedPos, type Schema } from '@tiptap/pm/model';
 import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state';
 import { classifyLine } from '@macbeth/core';
 
@@ -109,9 +109,20 @@ function insertAfter(state: EditorState, h: Here, node: PMNode, dispatch?: Dispa
   return true;
 }
 
+/**
+ * Só o texto, sem cortes nem quebras de verso, para levar o conteúdo a
+ * elementos que não aceitam essas coisas (nome do personagem, ato, cena,
+ * rubrica). A quebra de verso vira espaço.
+ */
+function plainText(schema: Schema, content: Fragment): Fragment {
+  const text = content.textBetween(0, content.size, ' ', ' ');
+  return text ? Fragment.from(schema.text(text)) : Fragment.empty;
+}
+
 function speechToDirection(state: EditorState, h: Here, text: PMNode['content'], dispatch?: Dispatch): boolean {
   if (dispatch) {
-    const direction = state.schema.nodes.direction!.create({ id: h.element.attrs.id, extra: h.element.attrs.extra }, text);
+    // Os atributos (id, notas, campos desconhecidos) acompanham o elemento.
+    const direction = state.schema.nodes.direction!.create(h.element.attrs, plainText(state.schema, text));
     dispatch(moveTo(state.tr.replaceWith(h.start, h.end, direction), h.start + 1 + direction.content.size));
   }
   return true;
@@ -131,13 +142,13 @@ function fountainEnter(state: EditorState, h: Here, dispatch?: Dispatch): boolea
   const attrs = h.element.attrs;
 
   if (kind === 'character') {
-    const speech = speechNode(schema, { attrs, cue: h.element.content });
+    const speech = speechNode(schema, { attrs, cue: plainText(schema, h.element.content) });
     const tr = state.tr.replaceWith(h.start, h.end, speech);
     dispatch(moveTo(tr, partStart(speech, h.start, 'speechLine')!).scrollIntoView());
     return true;
   }
 
-  const converted = schema.nodes[kind]!.create(attrs, h.element.content);
+  const converted = schema.nodes[kind]!.create({ id: attrs.id, extra: attrs.extra }, plainText(schema, h.element.content));
   const next = createElement(schema, NEXT_AFTER[kind]!);
   const tr = state.tr.replaceWith(h.start, h.end, [converted, next]);
   dispatch(moveTo(tr, h.start + converted.nodeSize + 1).scrollIntoView());
@@ -192,7 +203,7 @@ export const tab: Command = (state, dispatch) => {
   if (h.element.type.name === 'direction') {
     // O texto da rubrica vira o nome do personagem, como no Final Draft.
     if (dispatch) {
-      const speech = speechNode(schema, { attrs: h.element.attrs, cue: h.element.content });
+      const speech = speechNode(schema, { attrs: h.element.attrs, cue: plainText(schema, h.element.content) });
       const tr = state.tr.replaceWith(h.start, h.end, speech);
       dispatch(moveTo(tr, h.start + 2 + h.element.content.size));
     }

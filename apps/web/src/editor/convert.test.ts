@@ -139,3 +139,37 @@ describe('docToPlay', () => {
     });
   });
 });
+
+describe('cortes e notas', () => {
+  function annotatedPlay(): Play {
+    const play = macbethOpening();
+    const [direction, speech] = play.acts[0]!.scenes[0]!.elements;
+    // "Dia tão feio e tão belo\neu nunca vi.": o corte atravessa a quebra de verso.
+    speech!.cuts = [{ from: 13, to: 26 }];
+    direction!.cuts = [{ from: 0, to: 8 }];
+    direction!.notes = [{ id: 'n1', text: 'Trovão gravado, não ao vivo.', createdAt: '2026-11-05T10:00:00.000Z' }];
+    return play;
+  }
+
+  it('gera um documento válido, com a marcação de corte no texto cortado', () => {
+    const doc = playToDoc(annotatedPlay());
+    assertValid(doc);
+
+    const direction = doc.content?.[2];
+    expect(direction?.attrs?.notes).toHaveLength(1);
+    expect(direction?.content?.[0]).toMatchObject({ text: 'Trovão. ', marks: [{ type: 'cut' }] });
+    expect(direction?.content?.[1]).toEqual({ type: 'text', text: 'Entram Macbeth e Banquo.' });
+  });
+
+  it('ida e volta mantém cortes (mesmo atravessando versos) e notas', () => {
+    const play = annotatedPlay();
+    expect(docToPlay(playToDoc(play), play)).toEqual(play);
+  });
+
+  it('sem cortes nem notas, os campos não aparecem no modelo', () => {
+    const play = macbethOpening();
+    const element = docToPlay(playToDoc(play), play).acts[0]!.scenes[0]!.elements[0]!;
+    expect(element).not.toHaveProperty('cuts');
+    expect(element).not.toHaveProperty('notes');
+  });
+});
