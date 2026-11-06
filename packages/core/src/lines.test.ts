@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifyLine } from './fountain';
+import { classifyLine } from './lines';
 
 describe('classifyLine', () => {
   it.each([

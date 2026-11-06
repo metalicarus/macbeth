@@ -1,7 +1,7 @@
 import { Extension } from '@tiptap/core';
 import type { Node as PMNode, ResolvedPos, Schema } from '@tiptap/pm/model';
 import { Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state';
-import { classifyLine } from './fountain';
+import { classifyLine } from '@macbeth/core';
 
 /*
  * Enter e Tab escolhem o próximo elemento, para que a peça se formate

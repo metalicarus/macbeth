@@ -1,6 +1,7 @@
 /*
- * Convenções no estilo Fountain: quem digita rápido escreve a linha como
- * texto simples, e o Enter decide o que ela é.
+ * Reconhece o que uma linha de texto simples é, nas convenções do Fountain.
+ * O editor usa isto no Enter de uma rubrica, e a importação de .docx, .odt
+ * e Fountain usa para achar atos, cenas e nomes de personagem.
  *
  *   "Ato II", "ATO ÚNICO", "Segundo ato"    → ato
  *   "Cena 3 – Uma charneca"                 → cena
