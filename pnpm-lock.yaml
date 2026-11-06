@@ -178,6 +178,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@farscrl/hunspell-wasm':
+        specifier: 1.0.1
+        version: 1.0.1
       '@fontsource/courier-prime':
         specifier: ^5.3.0
         version: 5.3.0
@@ -226,6 +229,21 @@ importers:
       '@tiptap/vue-3':
         specifier: ^3.32.2
         version: 3.32.2(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.2(@tiptap/pm@3.32.2))(@tiptap/pm@3.32.2)(vue@3.5.44(typescript@6.0.3))
+      dictionary-en:
+        specifier: 4.0.0
+        version: 4.0.0
+      dictionary-es:
+        specifier: 4.0.0
+        version: 4.0.0
+      dictionary-fr:
+        specifier: 3.0.0
+        version: 3.0.0
+      dictionary-pt:
+        specifier: 4.0.0
+        version: 4.0.0
+      dictionary-pt-pt:
+        specifier: 2.0.0
+        version: 2.0.0
       mammoth:
         specifier: ^1.13.0
         version: 1.13.0
@@ -361,6 +379,10 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@farscrl/hunspell-wasm@1.0.1':
+    resolution: {integrity: sha512-tLhy/UvXTDqbHx+F/9+L48USQK7qyujxlUd0LuASLmxRS7r1lGaud9tSeq9nJT9oaFl9PAgORFuJh8OSwiT1fw==}
+    engines: {node: '>=24'}
 
   '@floating-ui/core@1.8.0':
     resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
@@ -855,6 +877,21 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  dictionary-en@4.0.0:
+    resolution: {integrity: sha512-3NHnE1uq33ZE/CIwaZ6gqxa4BnglHnxeAcTM0GJ7cmtRGcvX9InMK/IqLtYcUMFCUpUNgybH+DzkqdgAo3F1zg==}
+
+  dictionary-es@4.0.0:
+    resolution: {integrity: sha512-8J3IYdaHYmkojxqhB+DneQpek6N/s3MwbVk3bPNGQSTBT5kxJtmbuiT0LSDP0Al6K9Vevo1sjspG8AGP9Yvxiw==}
+
+  dictionary-fr@3.0.0:
+    resolution: {integrity: sha512-fhDRX1cRyHPA69GJg8R4XgNYgSQvbNHj3kr5UqvEG1OS5pJqH6P3GbO7wpTCwvr5KMQ0NxGIsXps9P5NyXRVEg==}
+
+  dictionary-pt-pt@2.0.0:
+    resolution: {integrity: sha512-N44fxg2uDhF71Ql20zpe6BpdMlVkOT7oyjltuOhRwb2mx2SX3CJ/lqUE6+/HKZdqaxggqNbM/qv02a+Sa1XQiA==}
+
+  dictionary-pt@4.0.0:
+    resolution: {integrity: sha512-ryJRhAtsaunBWw9grYXmVFftfab8+BCQ5wwh7fUzWO0oYEeMuR1lW2ubu1AHdvxOL32XP+u5wW/XhbFuoFuq8Q==}
 
   dingbat-to-unicode@1.0.2:
     resolution: {integrity: sha512-R0bRerYzy/EZP6QzD3Hkl6JjUDA1Mnn+pd928w0nWjPzihnbAR6dcjGJGiRyznj5E4S1duEKzWrTqw02DPcdzg==}
@@ -1444,6 +1481,8 @@ snapshots:
 
   '@exodus/bytes@1.16.0': {}
 
+  '@farscrl/hunspell-wasm@1.0.1': {}
+
   '@floating-ui/core@1.8.0':
     dependencies:
       '@floating-ui/utils': 0.2.12
@@ -1892,6 +1931,16 @@ snapshots:
   defu@6.1.7: {}
 
   detect-libc@2.1.2: {}
+
+  dictionary-en@4.0.0: {}
+
+  dictionary-es@4.0.0: {}
+
+  dictionary-fr@3.0.0: {}
+
+  dictionary-pt-pt@2.0.0: {}
+
+  dictionary-pt@4.0.0: {}
 
   dingbat-to-unicode@1.0.2: {}
 
