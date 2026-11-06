@@ -1,5 +1,6 @@
 import {
   addCharacter as addToCast,
+  addToDictionary,
   countSpeeches,
   createPlay,
   readMbth,
@@ -165,6 +166,12 @@ export const usePlayStore = defineStore('play', () => {
     autoCreated.delete(id);
   }
 
+  /** Palavra que o corretor passa a aceitar nesta peça (vai junto com o arquivo). */
+  function addDictionaryWord(word: string) {
+    const next = addToDictionary(play.value, word);
+    if (next !== play.value) change(next);
+  }
+
   return {
     play,
     fileName,
@@ -180,5 +187,6 @@ export const usePlayStore = defineStore('play', () => {
     renameCharacter,
     setCharacterColor,
     removeCharacter,
+    addDictionaryWord,
   };
 });

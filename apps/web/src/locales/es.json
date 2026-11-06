@@ -178,5 +178,12 @@
     "label": "Idioma de la interfaz",
     "auto": "Automático",
     "autoHint": "Sigue el idioma del sistema"
+  },
+  "spell": {
+    "menu": "Ortografía",
+    "loading": "Buscando sugerencias…",
+    "noSuggestions": "Sin sugerencias",
+    "add": "Añadir al diccionario de la obra",
+    "ignore": "Ignorar hasta cerrar la aplicación"
   }
 }

@@ -24,6 +24,7 @@ import { useNavigation } from '../stores/navigation';
 import { usePlayStore } from '../stores/play';
 import { usePreferences } from '../stores/preferences';
 import CueSuggestList from './CueSuggestList.vue';
+import SpellMenu, { type SpellTarget } from './SpellMenu.vue';
 
 const { t } = useI18n();
 const store = usePlayStore();
@@ -61,6 +62,9 @@ const NoteShortcut = Extension.create({
     };
   },
 });
+
+/** Palavra sublinhada clicada com o botão direito (abre o menu de correção). */
+const spellTarget = shallowRef<SpellTarget | null>(null);
 
 /** Palavras dos nomes dos personagens: o corretor as aceita em qualquer lugar. */
 const characterWords = computed(
@@ -102,6 +106,18 @@ const editor = useEditor({
     // O corretor do sistema fica desligado: quem corrige é o do Macbeth (SpellCheck),
     // na língua da peça. O lang ainda serve a leitores de tela e à hifenização.
     attributes: () => ({ class: 'script', spellcheck: 'false', lang: playLanguage(store.play) }),
+    // Botão direito numa palavra sublinhada abre o menu de correção; no resto
+    // do texto, fica o menu normal do sistema (copiar, colar…).
+    handleDOMEvents: {
+      contextmenu: (view, event) => {
+        const word = (event.target as HTMLElement).closest('.misspelled');
+        if (!word?.textContent) return false;
+        event.preventDefault();
+        const from = view.posAtDOM(word, 0);
+        spellTarget.value = { word: word.textContent, from, to: from + word.textContent.length, x: event.clientX, y: event.clientY };
+        return true;
+      },
+    },
   },
   onCreate: ({ editor }) => (bridge.editor = editor),
   onUpdate: ({ editor }) => {
@@ -213,6 +229,7 @@ onBeforeUnmount(() => {
   >
     <EditorContent :editor="editor" />
     <CueSuggestList v-if="editor && page && suggestion.open" :editor="editor" :state="suggestion" :container="page" />
+    <SpellMenu v-if="editor && spellTarget" :key="spellTarget.from" :editor="editor" :target="spellTarget" @close="spellTarget = null" />
   </div>
 </template>
 

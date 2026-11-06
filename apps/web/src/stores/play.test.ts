@@ -262,3 +262,19 @@ describe('importar', () => {
     expect(store.play).toBe(before);
   });
 });
+
+describe('dicionário da peça', () => {
+  it('acrescentar uma palavra marca a peça como não salva; repetir não muda nada', async () => {
+    fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: createPlay(), extras: {} }) });
+    const store = usePlayStore();
+    await store.open();
+
+    store.addDictionaryWord('Glamis');
+    expect(store.play.dictionary).toEqual(['Glamis']);
+    expect(store.dirty).toBe(true);
+
+    const before = store.play;
+    store.addDictionaryWord('Glamis');
+    expect(store.play).toBe(before);
+  });
+});

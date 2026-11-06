@@ -178,5 +178,12 @@
     "label": "Idioma da interface",
     "auto": "Automático",
     "autoHint": "Segue o idioma do sistema"
+  },
+  "spell": {
+    "menu": "Correção ortográfica",
+    "loading": "Procurando sugestões…",
+    "noSuggestions": "Sem sugestões",
+    "add": "Adicionar ao dicionário da peça",
+    "ignore": "Ignorar até fechar o app"
   }
 }

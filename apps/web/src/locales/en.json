@@ -178,5 +178,12 @@
     "label": "Interface language",
     "auto": "Automatic",
     "autoHint": "Follows the system language"
+  },
+  "spell": {
+    "menu": "Spelling",
+    "loading": "Looking for suggestions…",
+    "noSuggestions": "No suggestions",
+    "add": "Add to the play's dictionary",
+    "ignore": "Ignore until closing the app"
   }
 }
