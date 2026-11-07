@@ -10,6 +10,7 @@ import NoticeBar from './components/NoticeBar.vue';
 import OutlinePane from './components/OutlinePane.vue';
 import PlayEditor from './components/PlayEditor.vue';
 import PlayPanel from './components/PlayPanel.vue';
+import RehearseView from './components/RehearseView.vue';
 import ShortcutsDialog from './components/ShortcutsDialog.vue';
 import StructureView from './components/StructureView.vue';
 import { guardUnsavedClose } from './files/close-guard';
@@ -89,6 +90,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           <PlayEditor />
         </main>
         <StructureView v-if="mode === 'structure'" />
+        <RehearseView v-if="mode === 'rehearse'" />
       </div>
       <PlayPanel v-if="panelOpen" />
     </div>

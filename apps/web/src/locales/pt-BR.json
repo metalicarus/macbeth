@@ -108,7 +108,8 @@
   "modes": {
     "label": "Modo",
     "write": "Escrever",
-    "structure": "Estrutura"
+    "structure": "Estrutura",
+    "rehearse": "Ensaiar"
   },
   "structure": {
     "title": "Quem fala em cada cena",
@@ -144,7 +145,8 @@
       "writing": "Escrever",
       "suggestions": "Sugestões de personagem",
       "editing": "Edição",
-      "help": "Ajuda"
+      "help": "Ajuda",
+      "rehearse": "Ensaiar"
     },
     "items": {
       "new": "Nova peça",
@@ -172,7 +174,11 @@
       "redo": "Refazer",
       "cut": "Corta o trecho selecionado ou, sem seleção, a fala inteira; de novo, desfaz o corte",
       "note": "Nova nota na fala ou rubrica onde está o cursor",
-      "shortcuts": "Mostra estes atalhos"
+      "shortcuts": "Mostra estes atalhos",
+      "revealNext": "Mostra a próxima fala sua"
+    },
+    "keys": {
+      "space": "Espaço"
     }
   },
   "language": {
@@ -186,5 +192,27 @@
     "noSuggestions": "Sem sugestões",
     "add": "Adicionar ao dicionário da peça",
     "ignore": "Ignorar até fechar o app"
+  },
+  "rehearse": {
+    "character": "Estou ensaiando",
+    "scope": "Trecho",
+    "scopeScene": "Uma cena",
+    "scopePlay": "A peça inteira",
+    "scene": "Cena",
+    "mask": "Minhas falas aparecem",
+    "maskInitials": "Primeiras letras",
+    "maskHidden": "Ocultas",
+    "maskVisible": "Visíveis",
+    "cue": "Deixa",
+    "cueWords": "Últimas palavras",
+    "cueSpeech": "Fala inteira",
+    "restart": "Recomeçar",
+    "hint": "A deixa, o fim da fala anterior, aparece destacada. Clique na sua fala, ou aperte Espaço, para conferir.",
+    "noCharacters": "Os personagens aparecem aqui assim que alguém falar na peça.",
+    "wholePlay": "Peça inteira",
+    "yourLine": "Sua fala",
+    "reveal": "Mostrar a fala",
+    "progress": "{done} de {total} falas conferidas",
+    "untitledScene": "Cena sem título"
   }
 }

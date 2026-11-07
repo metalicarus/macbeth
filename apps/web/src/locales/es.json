@@ -108,7 +108,8 @@
   "modes": {
     "label": "Modo",
     "write": "Escribir",
-    "structure": "Estructura"
+    "structure": "Estructura",
+    "rehearse": "Ensayar"
   },
   "structure": {
     "title": "Quién habla en cada escena",
@@ -144,7 +145,8 @@
       "writing": "Escribir",
       "suggestions": "Sugerencias de personaje",
       "editing": "Edición",
-      "help": "Ayuda"
+      "help": "Ayuda",
+      "rehearse": "Ensayar"
     },
     "items": {
       "new": "Nueva obra",
@@ -172,7 +174,11 @@
       "redo": "Rehacer",
       "cut": "Corta el texto seleccionado o, sin selección, el parlamento entero; otra vez, deshace el corte",
       "note": "Nueva nota en el parlamento o la acotación donde está el cursor",
-      "shortcuts": "Muestra estos atajos"
+      "shortcuts": "Muestra estos atajos",
+      "revealNext": "Muestra tu siguiente parlamento"
+    },
+    "keys": {
+      "space": "Espacio"
     }
   },
   "language": {
@@ -186,5 +192,27 @@
     "noSuggestions": "Sin sugerencias",
     "add": "Añadir al diccionario de la obra",
     "ignore": "Ignorar hasta cerrar la aplicación"
+  },
+  "rehearse": {
+    "character": "Estoy ensayando",
+    "scope": "Fragmento",
+    "scopeScene": "Una escena",
+    "scopePlay": "La obra entera",
+    "scene": "Escena",
+    "mask": "Mis parlamentos aparecen",
+    "maskInitials": "Primeras letras",
+    "maskHidden": "Ocultos",
+    "maskVisible": "Visibles",
+    "cue": "Pie",
+    "cueWords": "Últimas palabras",
+    "cueSpeech": "Parlamento entero",
+    "restart": "Empezar de nuevo",
+    "hint": "El pie, el final del parlamento anterior, aparece resaltado. Haz clic en tu parlamento, o pulsa Espacio, para comprobarlo.",
+    "noCharacters": "Los personajes aparecen aquí en cuanto alguien hable en la obra.",
+    "wholePlay": "Obra entera",
+    "yourLine": "Tu parlamento",
+    "reveal": "Mostrar el parlamento",
+    "progress": "{done} de {total} parlamentos comprobados",
+    "untitledScene": "Escena sin título"
   }
 }

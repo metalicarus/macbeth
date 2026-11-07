@@ -5,6 +5,9 @@ import { keyLabel, SHORTCUTS } from '../shortcuts';
 
 const open = defineModel<boolean>('open', { required: true });
 const { t } = useI18n();
+
+/** Nome da tecla na tela; a barra de espaço tem nome em cada língua. */
+const label = (key: string) => (key === 'Space' ? t('shortcuts.keys.space') : keyLabel(key));
 </script>
 
 <template>
@@ -26,7 +29,7 @@ const { t } = useI18n();
                 <dt>
                   <template v-for="(combo, c) in item.keys" :key="c">
                     <span v-if="c > 0" class="or">/</span>
-                    <kbd v-for="key in combo" :key="key">{{ keyLabel(key) }}</kbd>
+                    <kbd v-for="key in combo" :key="key">{{ label(key) }}</kbd>
                   </template>
                 </dt>
                 <dd>{{ t(`shortcuts.items.${item.description}`) }}</dd>

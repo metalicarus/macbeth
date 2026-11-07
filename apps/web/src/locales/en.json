@@ -108,7 +108,8 @@
   "modes": {
     "label": "Mode",
     "write": "Write",
-    "structure": "Structure"
+    "structure": "Structure",
+    "rehearse": "Rehearse"
   },
   "structure": {
     "title": "Who speaks in each scene",
@@ -144,7 +145,8 @@
       "writing": "Writing",
       "suggestions": "Character suggestions",
       "editing": "Editing",
-      "help": "Help"
+      "help": "Help",
+      "rehearse": "Rehearsing"
     },
     "items": {
       "new": "New play",
@@ -172,7 +174,11 @@
       "redo": "Redo",
       "cut": "Cuts the selected text or, with no selection, the whole line; again to restore it",
       "note": "New note on the line or stage direction where the cursor is",
-      "shortcuts": "Shows these shortcuts"
+      "shortcuts": "Shows these shortcuts",
+      "revealNext": "Shows your next line"
+    },
+    "keys": {
+      "space": "Space"
     }
   },
   "language": {
@@ -186,5 +192,27 @@
     "noSuggestions": "No suggestions",
     "add": "Add to the play's dictionary",
     "ignore": "Ignore until closing the app"
+  },
+  "rehearse": {
+    "character": "I'm rehearsing",
+    "scope": "Section",
+    "scopeScene": "One scene",
+    "scopePlay": "The whole play",
+    "scene": "Scene",
+    "mask": "My lines show as",
+    "maskInitials": "First letters",
+    "maskHidden": "Hidden",
+    "maskVisible": "Visible",
+    "cue": "Cue",
+    "cueWords": "Last words",
+    "cueSpeech": "Whole line",
+    "restart": "Start over",
+    "hint": "The cue, the end of the previous line, is highlighted. Click your line, or press Space, to check it.",
+    "noCharacters": "Characters show up here as soon as someone speaks in the play.",
+    "wholePlay": "Whole play",
+    "yourLine": "Your line",
+    "reveal": "Show the line",
+    "progress": "{done} of {total} lines checked",
+    "untitledScene": "Untitled scene"
   }
 }

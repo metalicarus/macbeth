@@ -7,7 +7,7 @@
  * chave de tradução em "shortcuts.items".
  */
 
-/** "Mod" vira Ctrl (ou ⌘ no macOS); "Alt" vira ⌥ no macOS. */
+/** "Mod" vira Ctrl (ou ⌘ no macOS); "Alt" vira ⌥ no macOS; "Space" é traduzido na janela. */
 export type Key = string;
 
 export interface Shortcut {
@@ -66,6 +66,10 @@ export const SHORTCUTS: ShortcutGroup[] = [
       { keys: [['Mod', 'Shift', 'X']], description: 'cut' },
       { keys: [['Mod', 'Alt', 'M']], description: 'note' },
     ],
+  },
+  {
+    title: 'rehearse',
+    items: [{ keys: [['Space'], ['Enter']], description: 'revealNext' }],
   },
   {
     title: 'help',

@@ -9,6 +9,25 @@ const PANEL_KEY = 'macbeth.panel';
 const OUTLINE_KEY = 'macbeth.outline';
 const CUTS_KEY = 'macbeth.cuts';
 const LANGUAGE_KEY = 'macbeth.language';
+const REHEARSAL_KEY = 'macbeth.rehearsal';
+
+/** Como quem ensaia prefere ver: as próprias falas, a deixa e o trecho. */
+export interface RehearsalSettings {
+  mask: 'initials' | 'hidden' | 'visible';
+  cue: 'words' | 'speech';
+  scope: 'scene' | 'play';
+}
+
+const DEFAULT_REHEARSAL: RehearsalSettings = { mask: 'initials', cue: 'words', scope: 'scene' };
+
+function initialRehearsal(): RehearsalSettings {
+  try {
+    const saved = JSON.parse(localStorage.getItem(REHEARSAL_KEY) ?? '{}') as Partial<RehearsalSettings>;
+    return { ...DEFAULT_REHEARSAL, ...saved };
+  } catch {
+    return { ...DEFAULT_REHEARSAL };
+  }
+}
 
 /** Língua da interface: uma das suportadas, ou "auto" para seguir o sistema. */
 export type InterfaceLanguage = Locale | 'auto';
@@ -59,6 +78,7 @@ export const usePreferences = defineStore('preferences', () => {
   /** Trechos cortados aparecem riscados no texto; desligado, somem da tela. */
   const showCuts = ref(initiallyOpen(CUTS_KEY));
   const language = ref<InterfaceLanguage>(initialLanguage());
+  const rehearsal = ref<RehearsalSettings>(initialRehearsal());
 
   watch(
     look,
@@ -93,5 +113,17 @@ export const usePreferences = defineStore('preferences', () => {
     { immediate: true },
   );
 
-  return { look, panelOpen, outlineOpen, showCuts, language };
+  watch(
+    rehearsal,
+    (settings) => {
+      try {
+        localStorage.setItem(REHEARSAL_KEY, JSON.stringify(settings));
+      } catch {
+        // A escolha vale só para esta sessão.
+      }
+    },
+    { deep: true },
+  );
+
+  return { look, panelOpen, outlineOpen, showCuts, language, rehearsal };
 });

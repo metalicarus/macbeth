@@ -13,6 +13,7 @@ const { mode } = storeToRefs(useNavigation());
     <TabsList class="modes" :aria-label="t('modes.label')">
       <TabsTrigger class="mode" value="write">{{ t('modes.write') }}</TabsTrigger>
       <TabsTrigger class="mode" value="structure">{{ t('modes.structure') }}</TabsTrigger>
+      <TabsTrigger class="mode" value="rehearse">{{ t('modes.rehearse') }}</TabsTrigger>
     </TabsList>
   </TabsRoot>
 </template>
