@@ -17,3 +17,6 @@ playwright-report/
 .idea/
 .DS_Store
 *.log
+
+# Gerado a cada dev e build (scripts/licenses.mjs)
+apps/web/public/licenses.txt
