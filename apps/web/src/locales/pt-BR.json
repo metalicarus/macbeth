@@ -50,6 +50,11 @@
     "exportDirectorHint": "Com os cortes riscados (Ctrl+Shift+P)",
     "directorSuffix": "direção"
   },
+  "recovery": {
+    "ask": "O Macbeth fechou sem salvar “{name}”. Há uma cópia de segurança de {time}. Quer recuperá-la?",
+    "recover": "Recuperar",
+    "discard": "Descartar"
+  },
   "print": {
     "continues": "(continua)",
     "continued": "(cont.)",

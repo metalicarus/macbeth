@@ -16,12 +16,14 @@ import RehearseView from './components/RehearseView.vue';
 import ShortcutsDialog from './components/ShortcutsDialog.vue';
 import StructureView from './components/StructureView.vue';
 import { guardUnsavedClose } from './files/close-guard';
+import { confirmDialog } from './files/dialogs';
 import { useNavigation } from './stores/navigation';
 import { usePlayStore } from './stores/play';
 import { usePreferences } from './stores/preferences';
 
-const { t } = useI18n();
-const { play, fileName, dirty } = storeToRefs(usePlayStore());
+const { t, locale } = useI18n();
+const store = usePlayStore();
+const { play, fileName, dirty } = storeToRefs(store);
 const { panelOpen, outlineOpen } = storeToRefs(usePreferences());
 const { mode } = storeToRefs(useNavigation());
 
@@ -35,7 +37,17 @@ onMounted(() =>
   guardUnsavedClose(
     () => dirty.value,
     () => t('file.confirmClose'),
+    () => store.clearBackup(),
   ),
+);
+
+// Trabalho que ficou sem salvar quando o app (ou o computador) caiu.
+onMounted(() =>
+  store.checkRecovery((copy, recovered) => {
+    const name = copy.fileName ?? (recovered.titlePage.title || t('app.untitled'));
+    const time = new Intl.DateTimeFormat(locale.value, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(copy.savedAt));
+    return confirmDialog(t('recovery.ask', { name, time }), { ok: t('recovery.recover'), cancel: t('recovery.discard') });
+  }),
 );
 
 // Mapa de atalhos: menu "?", Ctrl+/ ou F1. A janela Sobre abre pelo mesmo menu.

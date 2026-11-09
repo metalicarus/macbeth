@@ -50,6 +50,11 @@
     "exportDirectorHint": "With the cuts struck through (Ctrl+Shift+P)",
     "directorSuffix": "director"
   },
+  "recovery": {
+    "ask": "Macbeth closed without saving “{name}”. There is a backup copy from {time}. Do you want to recover it?",
+    "recover": "Recover",
+    "discard": "Discard"
+  },
   "print": {
     "continues": "(continued)",
     "continued": "(cont'd)",
