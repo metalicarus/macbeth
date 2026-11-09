@@ -291,3 +291,21 @@ describe('dicionário da peça', () => {
     expect(store.play.dictionary).toBeUndefined();
   });
 });
+
+describe('formatação da peça', () => {
+  it('Centralizado fica no arquivo; voltar para Em linha apaga o campo', async () => {
+    fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: createPlay(), extras: {} }) });
+    const store = usePlayStore();
+    await store.open();
+
+    store.setFormat('inline');
+    expect(store.dirty).toBe(false);
+
+    store.setFormat('centered');
+    expect(store.play.format).toBe('centered');
+    expect(store.dirty).toBe(true);
+
+    store.setFormat('inline');
+    expect(store.play).not.toHaveProperty('format');
+  });
+});

@@ -67,7 +67,16 @@
     "titlePageHint": "Com título, o PDF ganha uma folha de rosto e uma página de personagens, e o título vira o nome sugerido do arquivo.",
     "language": "Idioma do texto",
     "languageHint": "Usado pelo corretor ortográfico e para pôr nomes em maiúsculas.",
-    "noSpellcheck": "Ainda não há corretor ortográfico para este idioma."
+    "noSpellcheck": "Ainda não há corretor ortográfico para este idioma.",
+    "format": "Formatação",
+    "formats": {
+      "inline": "Em linha",
+      "centered": "Centralizado"
+    },
+    "formatHints": {
+      "inline": "Em linha: o nome e a fala na mesma linha, como nas edições brasileiras.",
+      "centered": "Centralizado: o nome centralizado sobre a fala, como nas edições em inglês."
+    }
   },
   "cast": {
     "title": "Personagens",

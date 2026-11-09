@@ -67,7 +67,16 @@
     "titlePageHint": "With a title, the PDF gets a title page and a character list, and the title becomes the suggested file name.",
     "language": "Text language",
     "languageHint": "Used by the spell checker and to put names in capitals.",
-    "noSpellcheck": "There's no spell checker for this language yet."
+    "noSpellcheck": "There's no spell checker for this language yet.",
+    "format": "Layout",
+    "formats": {
+      "inline": "Inline",
+      "centered": "Centered"
+    },
+    "formatHints": {
+      "inline": "Inline: name and speech on the same line, as in Brazilian editions.",
+      "centered": "Centered: the name centered above the speech, as in English editions."
+    }
   },
   "cast": {
     "title": "Characters",

@@ -67,7 +67,16 @@
     "titlePageHint": "Con título, el PDF tiene portada y página de personajes, y el título se usa como nombre sugerido del archivo.",
     "language": "Idioma del texto",
     "languageHint": "Lo usa el corrector ortográfico y para poner los nombres en mayúsculas.",
-    "noSpellcheck": "Todavía no hay corrector ortográfico para este idioma."
+    "noSpellcheck": "Todavía no hay corrector ortográfico para este idioma.",
+    "format": "Formato",
+    "formats": {
+      "inline": "En línea",
+      "centered": "Centrado"
+    },
+    "formatHints": {
+      "inline": "En línea: el nombre y el parlamento en la misma línea, como en las ediciones brasileñas.",
+      "centered": "Centrado: el nombre centrado sobre el parlamento, como en las ediciones en inglés."
+    }
   },
   "cast": {
     "title": "Personajes",

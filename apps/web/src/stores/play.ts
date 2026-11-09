@@ -2,6 +2,7 @@ import {
   addCharacter as addToCast,
   addToDictionary,
   countSpeeches,
+  playFormat,
   createPlay,
   readMbth,
   removeCharacter as removeFromCast,
@@ -14,6 +15,7 @@ import {
   type Character,
   type Id,
   type Play,
+  type PlayFormat,
   type PlaySummary,
   type TitlePage,
 } from '@macbeth/core';
@@ -136,6 +138,13 @@ export const usePlayStore = defineStore('play', () => {
   }
 
   /** Campos vazios do subtítulo saem do arquivo, em vez de ficarem como texto vazio. */
+  function setFormat(format: PlayFormat) {
+    if (format === playFormat(play.value)) return;
+    // Em linha é o padrão: o arquivo só guarda o campo quando é outra formatação.
+    const { format: _, ...rest } = play.value;
+    change(format === 'inline' ? rest : { ...rest, format });
+  }
+
   function updateTitlePage(patch: Partial<TitlePage>) {
     const titlePage = { ...play.value.titlePage, ...patch };
     if (!titlePage.subtitle) delete titlePage.subtitle;
@@ -196,6 +205,7 @@ export const usePlayStore = defineStore('play', () => {
     save,
     applyDoc,
     updateTitlePage,
+    setFormat,
     addCharacter,
     renameCharacter,
     setCharacterColor,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PLAY_LANGUAGES, playLanguage, type TitlePage } from '@macbeth/core';
+import { PLAY_FORMATS, playFormat, PLAY_LANGUAGES, playLanguage, type PlayFormat, type TitlePage } from '@macbeth/core';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { dictionaryFor } from '../spell/dictionaries';
@@ -58,7 +58,13 @@ function update(key: keyof TitlePage, event: Event) {
         </select>
       </label>
       <p v-if="!dictionaryFor(playLanguage(store.play))" class="hint warn">{{ t('panel.noSpellcheck') }}</p>
-      <p class="hint">{{ t('panel.titlePageHint') }} {{ t('panel.languageHint') }}</p>
+      <label class="field">
+        <span>{{ t('panel.format') }}</span>
+        <select :value="playFormat(store.play)" @change="store.setFormat(($event.target as HTMLSelectElement).value as PlayFormat)">
+          <option v-for="format in PLAY_FORMATS" :key="format" :value="format">{{ t(`panel.formats.${format}`) }}</option>
+        </select>
+      </label>
+      <p class="hint">{{ t('panel.titlePageHint') }} {{ t('panel.languageHint') }} {{ t(`panel.formatHints.${playFormat(store.play)}`) }}</p>
     </section>
     <NotesList />
     <CastList />

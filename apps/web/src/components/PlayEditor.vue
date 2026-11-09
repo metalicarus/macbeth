@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { playLanguage, suggestCharacters } from '@macbeth/core';
+import { playFormat, playLanguage, suggestCharacters } from '@macbeth/core';
 import { Placeholder } from '@tiptap/extensions/placeholder';
 import { UndoRedo } from '@tiptap/extensions/undo-redo';
 import { EditorState } from '@tiptap/pm/state';
@@ -223,8 +223,8 @@ onBeforeUnmount(() => {
   </div>
   <div
     ref="page"
-    class="page fmt-inline"
-    :class="{ 'hide-cuts': !preferences.showCuts }"
+    class="page"
+    :class="[`fmt-${playFormat(store.play)}`, { 'hide-cuts': !preferences.showCuts }]"
     :style="placeholderVars"
   >
     <EditorContent :editor="editor" />
@@ -428,6 +428,38 @@ onBeforeUnmount(() => {
   clear: both;
 }
 
+/*
+ * Centralizado: o padrão em inglês.
+ *                 MACBETH
+ *                 (baixo)
+ *   Dia tão feio e tão belo eu nunca vi.
+ *                     (Trovão. Entram as Bruxas.)
+ */
+.fmt-centered :deep(.el-direction) {
+  margin-left: 33%;
+}
+
+.fmt-centered :deep(.el-direction)::before,
+.fmt-centered :deep(.speech-parenthetical)::before {
+  content: '(';
+}
+
+.fmt-centered :deep(.el-direction)::after,
+.fmt-centered :deep(.speech-parenthetical)::after {
+  content: ')';
+}
+
+.fmt-centered :deep(.speech-cue),
+.fmt-centered :deep(.speech-parenthetical) {
+  display: block;
+  position: relative;
+  text-align: center;
+}
+
+.fmt-centered :deep(.speech-line) {
+  display: block;
+}
+
 /* Elementos vazios mostram o texto de exemplo, sem ocupar o lugar do cursor. */
 .page :deep(.is-empty)::before {
   color: var(--muted);
@@ -484,6 +516,41 @@ onBeforeUnmount(() => {
 }
 
 .fmt-inline :deep(.speech-line.is-empty)::before {
+  content: var(--ph-line);
+  float: left;
+  height: 0;
+}
+
+/*
+ * No Centralizado o cursor fica no meio da linha vazia; o exemplo se
+ * sobrepõe a ele, centralizado, em vez de empurrá-lo.
+ */
+.fmt-centered :deep(.el-direction.is-empty)::before {
+  content: '(' var(--ph-direction) ')';
+  float: left;
+  height: 0;
+}
+
+.fmt-centered :deep(.el-direction.is-empty)::after,
+.fmt-centered :deep(.speech-parenthetical.is-empty)::after {
+  content: none;
+}
+
+.fmt-centered :deep(.speech-cue.is-empty)::before,
+.fmt-centered :deep(.speech-parenthetical.is-empty)::before {
+  content: var(--ph-cue);
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fmt-centered :deep(.speech-parenthetical.is-empty)::before {
+  content: '(' var(--ph-parenthetical) ')';
+}
+
+.fmt-centered :deep(.speech-line.is-empty)::before {
   content: var(--ph-line);
   float: left;
   height: 0;
