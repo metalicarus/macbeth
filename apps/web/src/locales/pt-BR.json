@@ -52,7 +52,8 @@
   },
   "print": {
     "continues": "(continua)",
-    "continued": "(cont.)"
+    "continued": "(cont.)",
+    "cast": "Personagens"
   },
   "panel": {
     "toggle": "Peça",
@@ -63,7 +64,7 @@
     "titlePlaceholder": "Macbeth",
     "subtitlePlaceholder": "Tragédia em cinco atos",
     "authorPlaceholder": "William Shakespeare",
-    "titlePageHint": "Com título, o PDF ganha uma folha de rosto, e o título vira o nome sugerido do arquivo.",
+    "titlePageHint": "Com título, o PDF ganha uma folha de rosto e uma página de personagens, e o título vira o nome sugerido do arquivo.",
     "language": "Idioma do texto",
     "languageHint": "Usado pelo corretor ortográfico e para pôr nomes em maiúsculas.",
     "noSpellcheck": "Ainda não há corretor ortográfico para este idioma."

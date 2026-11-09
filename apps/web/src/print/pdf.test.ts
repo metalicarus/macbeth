@@ -13,7 +13,7 @@ const fonts: FontFiles = {
   italic: font('400-italic'),
   boldItalic: font('700-italic'),
 };
-const labels = { continues: '(continua)', continued: '(cont.)' };
+const labels = { continues: '(continua)', continued: '(cont.)', cast: 'Personagens' };
 
 function sample(speeches: number): Play {
   const { play, character } = addCharacter(createPlay({ title: 'Macbeth', author: 'William Shakespeare' }), 'Macbeth');
@@ -28,11 +28,11 @@ function sample(speeches: number): Play {
 }
 
 describe('playToPdf', () => {
-  it('gera um PDF A4 com folha de rosto e metadados', async () => {
+  it('gera um PDF A4 com folha de rosto, personagens e metadados', async () => {
     const bytes = await playToPdf(sample(3), fonts, labels);
     const pdf = await PDFDocument.load(bytes);
 
-    expect(pdf.getPageCount()).toBe(2);
+    expect(pdf.getPageCount()).toBe(3);
     expect(pdf.getPage(0).getSize()).toEqual({ width: 595.28, height: 841.89 });
     expect(pdf.getTitle()).toBe('Macbeth');
     expect(pdf.getAuthor()).toBe('William Shakespeare');

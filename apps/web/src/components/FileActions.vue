@@ -59,7 +59,7 @@ const hasCuts = computed(() =>
 
 const exportPdf = (cuts: 'omit' | 'strike' = 'omit') =>
   run(async () => {
-    const labels = { continues: t('print.continues'), continued: t('print.continued') };
+    const labels = { continues: t('print.continues'), continued: t('print.continued'), cast: t('print.cast') };
     const bytes = await playToPdf(store.play, await scriptFonts(), labels, cuts);
     const base = store.fileName?.replace(/\.mbth$/i, '') || store.play.titlePage.title || t('app.untitled');
     const name = cuts === 'strike' ? `${base} (${t('file.directorSuffix')})` : base;

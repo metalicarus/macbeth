@@ -52,7 +52,8 @@
   },
   "print": {
     "continues": "(continued)",
-    "continued": "(cont'd)"
+    "continued": "(cont'd)",
+    "cast": "Characters"
   },
   "panel": {
     "toggle": "Play",
@@ -63,7 +64,7 @@
     "titlePlaceholder": "Macbeth",
     "subtitlePlaceholder": "A tragedy in five acts",
     "authorPlaceholder": "William Shakespeare",
-    "titlePageHint": "With a title, the PDF gets a title page, and the title becomes the suggested file name.",
+    "titlePageHint": "With a title, the PDF gets a title page and a character list, and the title becomes the suggested file name.",
     "language": "Text language",
     "languageHint": "Used by the spell checker and to put names in capitals.",
     "noSpellcheck": "There's no spell checker for this language yet."

@@ -1,4 +1,5 @@
 import { isFullyCut, splitByCuts, textWithoutCuts } from './annotations';
+import { charactersByAppearance } from './characters';
 import { playLanguage, type Play, type SceneElement, type Speech } from './model';
 
 /*
@@ -12,7 +13,9 @@ import { playLanguage, type Play, type SceneElement, type Speech } from './model
  *   - título de ato ou cena nunca fica sozinho no pé da página;
  *   - fala que não cabe é dividida, com "(continua)" no pé e
  *     "NOME (cont.)" no alto da página seguinte;
- *   - as páginas são numeradas, menos a folha de rosto;
+ *   - com folha de rosto, vem logo depois a página de personagens (nome e
+ *     descrição, na ordem em que cada um entra em cena);
+ *   - as páginas são numeradas, menos a folha de rosto e a de personagens;
  *   - os cortes somem (versão do espetáculo) ou saem riscados (cópia da
  *     direção); fala ou rubrica cortada inteira some por completo.
  */
@@ -41,7 +44,7 @@ export interface LayoutOptions {
   charsPerLine: number;
   linesPerPage: number;
   /** Textos que dependem da língua da interface. */
-  labels: { continues: string; continued: string };
+  labels: { continues: string; continued: string; cast: string };
   /** Cortes: somem (padrão, versão do espetáculo) ou saem riscados (cópia da direção). */
   cuts?: 'omit' | 'strike';
 }
@@ -182,11 +185,28 @@ function titlePage(play: Play, options: LayoutOptions): LaidOutPage | null {
   return { number: null, lines: [...Array<Line>(top).fill(BLANK), ...lines] };
 }
 
+/** A lista de personagens; se não couber numa página, continua na seguinte. */
+function castPages(play: Play, options: LayoutOptions): LaidOutPage[] {
+  if (play.characters.length === 0) return [];
+  const language = playLanguage(play);
+  const width = options.charsPerLine;
+  const lines: Line[] = [...wrap([{ text: options.labels.cast.toLocaleUpperCase(language), bold: true }], width, 'center'), BLANK];
+  for (const character of charactersByAppearance(play)) {
+    const name: Span = { text: character.name.toLocaleUpperCase(language), bold: true };
+    lines.push(...wrap(character.description ? [name, { text: `, ${character.description}` }] : [name], width));
+  }
+  const pages: LaidOutPage[] = [];
+  for (let i = 0; i < lines.length; i += options.linesPerPage) {
+    pages.push({ number: null, lines: lines.slice(i, i + options.linesPerPage) });
+  }
+  return pages;
+}
+
 export function layoutPlay(play: Play, options: LayoutOptions): LaidOutPage[] {
   const { linesPerPage, charsPerLine, labels } = options;
   const pages: LaidOutPage[] = [];
   const cover = titlePage(play, options);
-  if (cover) pages.push(cover);
+  if (cover) pages.push(cover, ...castPages(play, options));
 
   let page: Line[] = [];
   let number = 1;

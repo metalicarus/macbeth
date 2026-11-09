@@ -10,7 +10,7 @@ const pageTexts = (page: LaidOutPage) => page.lines.map(text);
 const options = (overrides: Partial<LayoutOptions> = {}): LayoutOptions => ({
   charsPerLine: 30,
   linesPerPage: 12,
-  labels: { continues: '(continua)', continued: '(cont.)' },
+  labels: { continues: '(continua)', continued: '(cont.)', cast: 'Personagens' },
   ...overrides,
 });
 
@@ -87,6 +87,34 @@ describe('layoutPlay', () => {
     expect(pages[0]?.number).toBeNull();
     expect(pageTexts(pages[0]!).filter(Boolean)).toEqual(['MACBETH', 'William Shakespeare']);
     expect(pages[1]?.number).toBe(1);
+  });
+
+  it('com folha de rosto e elenco, a página seguinte lista os personagens na ordem de entrada', () => {
+    const base = playWith(['Duncan', 'Bruxa'], (ids) => [speech(ids.Bruxa!, 'Quando nos veremos?'), speech(ids.Duncan!, 'Que homem é aquele?')]);
+    const play = {
+      ...base,
+      titlePage: { title: 'Macbeth', author: '' },
+      characters: base.characters.map((c) => (c.name === 'Duncan' ? { ...c, description: 'rei da Escócia' } : c)),
+    };
+    const pages = layoutPlay(play, options());
+
+    expect(pages[1]?.number).toBeNull();
+    expect(pageTexts(pages[1]!)).toEqual(['PERSONAGENS', '', 'BRUXA', 'DUNCAN, rei da Escócia']);
+    expect(pages[2]?.number).toBe(1);
+  });
+
+  it('elenco maior que uma página continua na seguinte, ainda sem número', () => {
+    const names = Array.from({ length: 15 }, (_, i) => `Soldado ${i + 1}`);
+    const play = { ...playWith(names, () => [direction('Escuro.')]), titlePage: { title: 'Macbeth', author: '' } };
+    const pages = layoutPlay(play, options());
+
+    expect(pages.map((p) => p.number)).toEqual([null, null, null, 1]);
+    expect(pageTexts(pages[2]!)).toEqual(['SOLDADO 11', 'SOLDADO 12', 'SOLDADO 13', 'SOLDADO 14', 'SOLDADO 15']);
+  });
+
+  it('sem folha de rosto, não há página de personagens', () => {
+    const play = playWith(['Duncan'], (ids) => [speech(ids.Duncan!, 'Que homem é aquele?')]);
+    expect(layoutPlay(play, options())[0]?.number).toBe(1);
   });
 
   it('cada ato a partir do segundo começa em página nova', () => {
