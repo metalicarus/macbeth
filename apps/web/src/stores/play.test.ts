@@ -2,13 +2,18 @@ import { addCharacter, CHARACTER_COLORS, createPlay, MbthError, readMbth, writeM
 import type { JSONContent } from '@tiptap/core';
 import { strToU8 } from 'fflate';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setFileProvider, type FileHandle, type FileProvider } from '../files';
+import { setRecoveryStore, type RecoveryCopy, type RecoveryStore } from '../files/recovery';
 import { i18n } from '../i18n';
 import { usePlayStore } from './play';
 
 beforeEach(() => setActivePinia(createPinia()));
-afterEach(() => setFileProvider(null));
+afterEach(() => {
+  setFileProvider(null);
+  setRecoveryStore(null);
+  vi.useRealTimers();
+});
 
 /** Provedor falso: guarda o que foi salvo e devolve o arquivo que o teste mandar abrir. */
 function fakeFiles(toOpen?: { name: string; bytes: Uint8Array }) {
@@ -309,3 +314,101 @@ describe('formatação da peça', () => {
     expect(store.play).not.toHaveProperty('format');
   });
 });
+
+/** Cópia de segurança em memória. */
+function fakeRecovery(initial: RecoveryCopy | null = null) {
+  const state = { copy: initial, writes: 0 };
+  const recovery: RecoveryStore = {
+    write: async (copy) => {
+      state.copy = copy;
+      state.writes++;
+    },
+    read: async () => state.copy,
+    clear: async () => {
+      state.copy = null;
+    },
+  };
+  setRecoveryStore(recovery);
+  return state;
+}
+
+describe('cópia de segurança', () => {
+  it('grava 5 s depois da última alteração e apaga ao salvar', async () => {
+    vi.useFakeTimers();
+    fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: createPlay(), extras: {} }) });
+    const recovery = fakeRecovery();
+    const store = usePlayStore();
+    await store.open();
+    await store.checkRecovery(async () => false);
+
+    store.applyDoc(docWithCues('Macbeth'));
+    await vi.advanceTimersByTimeAsync(4_000);
+    store.applyDoc(docWithCues('Macbeth', 'Banquo'));
+    await vi.advanceTimersByTimeAsync(4_000);
+    expect(recovery.writes).toBe(0);
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(recovery.writes).toBe(1);
+    expect(recovery.copy).toMatchObject({ fileName: 'macbeth.mbth', path: '/peças/macbeth.mbth' });
+    expect(readMbth(recovery.copy!.bytes).play.characters.map((c) => c.name)).toEqual(['Macbeth', 'Banquo']);
+
+    await store.save('Sem título');
+    await vi.runAllTimersAsync();
+    expect(recovery.copy).toBeNull();
+  });
+
+  it('quem digita sem parar ganha uma cópia a cada minuto', async () => {
+    vi.useFakeTimers();
+    const recovery = fakeRecovery();
+    const store = usePlayStore();
+    await store.checkRecovery(async () => false);
+
+    for (let second = 0; second < 61; second += 2) {
+      store.applyDoc(docWithCues(`Personagem ${second}`));
+      await vi.advanceTimersByTimeAsync(2_000);
+    }
+    expect(recovery.writes).toBe(1);
+  });
+
+  it('na abertura, recupera a cópia como peça não salva, ligada ao mesmo arquivo', async () => {
+    const play = addCharacter(createPlay({ title: 'Macbeth' }), 'Banquo').play;
+    fakeFiles();
+    fakeRecovery({ bytes: writeMbth({ play, extras: {} }), fileName: 'macbeth.mbth', path: '/peças/macbeth.mbth', savedAt: '2026-11-09T10:00:00Z' });
+    const store = usePlayStore();
+
+    const asked: string[] = [];
+    await store.checkRecovery(async (_copy, recovered) => {
+      asked.push(recovered.titlePage.title);
+      return true;
+    });
+
+    expect(asked).toEqual(['Macbeth']);
+    expect(store.play.characters.map((c) => c.name)).toEqual(['Banquo']);
+    expect(store.fileName).toBe('macbeth.mbth');
+    expect(store.dirty).toBe(true);
+  });
+
+  it('descartar na abertura apaga a cópia; cópia ilegível é apagada sem perguntar', async () => {
+    const recovery = fakeRecovery({ bytes: writeMbth({ play: createPlay(), extras: {} }), fileName: null, path: null, savedAt: '2026-11-09T10:00:00Z' });
+    await usePlayStore().checkRecovery(async () => false);
+    expect(recovery.copy).toBeNull();
+
+    const broken = fakeRecovery({ bytes: strToU8('não é um zip'), fileName: null, path: null, savedAt: '2026-11-09T10:00:00Z' });
+    let asked = false;
+    await usePlayStore().checkRecovery(async () => (asked = true));
+    expect(asked).toBe(false);
+    expect(broken.copy).toBeNull();
+  });
+
+  it('antes da pergunta da abertura, nada é gravado nem apagado', async () => {
+    vi.useFakeTimers();
+    const old: RecoveryCopy = { bytes: writeMbth({ play: createPlay(), extras: {} }), fileName: null, path: null, savedAt: '2026-11-09T10:00:00Z' };
+    const recovery = fakeRecovery(old);
+    const store = usePlayStore();
+
+    store.applyDoc(docWithCues('Macbeth'));
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(recovery.copy).toBe(old);
+  });
+});
+

@@ -21,10 +21,11 @@ import {
 } from '@macbeth/core';
 import type { JSONContent } from '@tiptap/core';
 import { defineStore } from 'pinia';
-import { ref, shallowRef } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 import { docToPlay } from '../editor/convert';
 import { i18n } from '../i18n';
 import { fileProvider, IMPORT_FILES, suggestedFileName, type FileHandle } from '../files';
+import { recoveryStore, type RecoveryCopy } from '../files/recovery';
 import { importPlay } from '../import';
 
 /** Peça nova, escrita na língua da interface. */
@@ -137,6 +138,89 @@ export const usePlayStore = defineStore('play', () => {
     dirty.value = true;
   }
 
+  /*
+   * Cópia de segurança (files/recovery.ts): 5 s depois da última alteração
+   * ou, para quem digita sem parar, a cada minuto. Salvar ou descartar apaga
+   * a cópia. Gravações e limpezas passam por uma fila, para que uma cópia
+   * atrasada não reapareça depois de a peça ser salva.
+   */
+  const BACKUP_DELAY = 5_000;
+  const BACKUP_MAX_WAIT = 60_000;
+  let backupsOn = false;
+  let backupTimer: ReturnType<typeof setTimeout> | undefined;
+  let pendingSince: number | null = null;
+  let backupQueue = Promise.resolve();
+
+  function enqueue(task: () => Promise<void>) {
+    backupQueue = backupQueue.then(task).catch((error) => console.warn('Cópia de segurança:', error));
+    return backupQueue;
+  }
+
+  function backup() {
+    backupTimer = undefined;
+    pendingSince = null;
+    return enqueue(async () => {
+      if (!dirty.value) return;
+      await recoveryStore().write({
+        bytes: writeMbth({ play: play.value, extras }),
+        fileName: fileName.value,
+        path: typeof handle === 'string' ? handle : null,
+        savedAt: new Date().toISOString(),
+      });
+    });
+  }
+
+  /** Apaga a cópia (peça salva, ou alterações descartadas de propósito). */
+  function clearBackup() {
+    clearTimeout(backupTimer);
+    backupTimer = undefined;
+    pendingSince = null;
+    return enqueue(() => recoveryStore().clear());
+  }
+
+  watch([play, dirty], () => {
+    if (!backupsOn) return;
+    if (!dirty.value) {
+      void clearBackup();
+      return;
+    }
+    clearTimeout(backupTimer);
+    pendingSince ??= Date.now();
+    const wait = Math.max(0, Math.min(BACKUP_DELAY, pendingSince + BACKUP_MAX_WAIT - Date.now()));
+    backupTimer = setTimeout(() => void backup(), wait);
+  });
+
+  /**
+   * Na abertura do app: se ficou uma cópia de uma sessão que caiu, pergunta
+   * (`ask`) se a pessoa quer recuperá-la. Só depois disso as cópias começam,
+   * para a nova sessão não apagar a anterior antes da pergunta.
+   */
+  async function checkRecovery(ask: (copy: RecoveryCopy, play: Play) => Promise<boolean>): Promise<void> {
+    try {
+      const copy = await recoveryStore().read();
+      if (!copy) return;
+      let recovered: ReturnType<typeof readMbth>;
+      try {
+        recovered = readMbth(copy.bytes);
+      } catch {
+        await recoveryStore().clear();
+        return;
+      }
+      if (await ask(copy, recovered.play)) {
+        load(recovered.play, { name: copy.fileName, handle: copy.path, extras: recovered.extras });
+        dirty.value = true;
+      } else {
+        await recoveryStore().clear();
+      }
+    } catch (error) {
+      console.warn('Cópia de segurança:', error);
+    } finally {
+      backupsOn = true;
+      // Peça recuperada já está não salva: a cópia volta a ser feita.
+      if (dirty.value) void backup();
+    }
+  }
+
   function setFormat(format: PlayFormat) {
     if (format === playFormat(play.value)) return;
     // Em linha é o padrão: o arquivo só guarda o campo quando é outra formatação.
@@ -213,5 +297,7 @@ export const usePlayStore = defineStore('play', () => {
     removeCharacter,
     addDictionaryWord,
     removeDictionaryWord,
+    checkRecovery,
+    clearBackup,
   };
 });
