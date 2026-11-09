@@ -67,7 +67,7 @@ export async function playToPdf(
 
     laidOut.lines.forEach((line, i) => {
       const length = line.spans.reduce((sum, s) => sum + s.text.length, 0);
-      let x = MARGIN + (line.align === 'center' ? (textWidth - length * charWidth) / 2 : 0);
+      let x = MARGIN + (line.align === 'center' ? (textWidth - length * charWidth) / 2 : (line.indent ?? 0) * charWidth);
       const y = PAGE_HEIGHT - MARGIN - (i + 1) * LEADING;
       for (const span of line.spans) {
         page.drawText(span.text, { x, y, size: FONT_SIZE, font: fontFor(span), color: INK });

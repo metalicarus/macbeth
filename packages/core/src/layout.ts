@@ -1,9 +1,9 @@
 import { isFullyCut, splitByCuts, textWithoutCuts } from './annotations';
 import { charactersByAppearance } from './characters';
-import { playLanguage, type Play, type SceneElement, type Speech } from './model';
+import { playFormat, playLanguage, type Play, type SceneElement, type Speech } from './model';
 
 /*
- * Paginação da peça para impressão, na formatação Em linha.
+ * Paginação da peça para impressão, nas formatações Em linha e Centralizado.
  *
  * O texto usa uma fonte monoespaçada, então tudo é medido em caracteres e
  * linhas: quem desenha o PDF só converte para pontos. Isso mantém as regras
@@ -12,7 +12,8 @@ import { playLanguage, type Play, type SceneElement, type Speech } from './model
  *   - cada ato (a partir do segundo) começa em página nova;
  *   - título de ato ou cena nunca fica sozinho no pé da página;
  *   - fala que não cabe é dividida, com "(continua)" no pé e
- *     "NOME (cont.)" no alto da página seguinte;
+ *     "NOME (cont.)" no alto da página seguinte; no Centralizado, o nome
+ *     (e o parentético) não fica no pé sem ao menos duas linhas do texto;
  *   - com folha de rosto, vem logo depois a página de personagens (nome e
  *     descrição, na ordem em que cada um entra em cena);
  *   - as páginas são numeradas, menos a folha de rosto e a de personagens;
@@ -32,6 +33,8 @@ export interface Span {
 export interface Line {
   spans: Span[];
   align?: 'left' | 'center';
+  /** Recuo à esquerda, em caracteres (as rubricas do Centralizado). */
+  indent?: number;
 }
 
 export interface LaidOutPage {
@@ -57,6 +60,10 @@ interface Block {
   keepWithNext?: boolean;
   /** Nome do personagem (em maiúsculas), para continuar a fala na página seguinte. */
   speaker?: string;
+  /** Linhas do começo que não se separam do texto (nome e parentético, no Centralizado). */
+  head?: number;
+  /** Fala no Centralizado: as linhas de continuação também saem centralizadas. */
+  centered?: boolean;
 }
 
 const BLANK: Line = { spans: [] };
@@ -134,7 +141,33 @@ function speechSpans(speech: Speech, speaker: string, cuts: 'omit' | 'strike'): 
   ];
 }
 
+/*
+ * Centralizado, o padrão em inglês:
+ *                 MACBETH
+ *                 (baixo)
+ *   Dia tão feio e tão belo eu nunca vi.
+ *                     (Trovão. Entram as Bruxas.)
+ */
+function centeredSpeech(speech: Speech, speaker: string, cuts: 'omit' | 'strike', width: number): Block {
+  const struck = cuts === 'strike' && isFullyCut(speech) ? { struck: true } : {};
+  const head = [
+    ...wrap([{ text: speaker, bold: true, ...struck }], width, 'center'),
+    ...(speech.parenthetical ? wrap([{ text: `(${speech.parenthetical})`, italic: true, ...struck }], width, 'center') : []),
+  ];
+  let body = wrap(textSpans(speech, cuts, false), width);
+  // Fala sem texto: só o nome, sem uma linha em branco embaixo.
+  if (body.every((line) => line.spans.length === 0)) body = [];
+  return { lines: [...head, ...body], speaker, head: head.length, centered: true };
+}
+
+/** No Centralizado, a rubrica começa a um terço da linha. */
+function indentedLines(spans: Span[], width: number): Line[] {
+  const indent = Math.floor(width / 3);
+  return wrap(spans, width - indent).map((line) => ({ ...line, indent }));
+}
+
 function blocksOf(play: Play, width: number, cuts: 'omit' | 'strike'): Block[] {
+  const centered = playFormat(play) === 'centered';
   const language = playLanguage(play);
   const upper = (text: string) => text.toLocaleUpperCase(language);
   const names = new Map(play.characters.map((c) => [c.id, c.name]));
@@ -159,10 +192,11 @@ function blocksOf(play: Play, width: number, cuts: 'omit' | 'strike'): Block[] {
         if (cuts === 'omit' && isFullyCut(element)) continue;
         if (element.type === 'direction') {
           const spans = [{ text: '(', italic: true }, ...textSpans(element, cuts, true), { text: ')', italic: true }];
-          blocks.push({ lines: wrap(spans, width) });
+          blocks.push({ lines: centered ? indentedLines(spans, width) : wrap(spans, width) });
         } else {
           const speaker = upper(names.get(element.characterId) ?? '');
-          blocks.push({ lines: wrap(speechSpans(element, speaker, cuts), width), speaker });
+          if (centered) blocks.push(centeredSpeech(element, speaker, cuts, width));
+          else blocks.push({ lines: wrap(speechSpans(element, speaker, cuts), width), speaker });
         }
       }
     }
@@ -225,8 +259,8 @@ export function layoutPlay(play: Play, options: LayoutOptions): LaidOutPage[] {
 
     const gap = page.length > 0 ? 1 : 0;
     const next = blocks[i + 1];
-    // Título precisa levar junto ao menos duas linhas do que vem depois.
-    const companion = block.keepWithNext && next ? 1 + Math.min(2, next.lines.length) : 0;
+    // Título precisa levar junto ao menos duas linhas do texto que vem depois.
+    const companion = block.keepWithNext && next ? 1 + Math.min((next.head ?? 0) + 2, next.lines.length) : 0;
 
     if (gap + block.lines.length + companion <= free()) {
       if (gap) page.push(BLANK);
@@ -234,18 +268,19 @@ export function layoutPlay(play: Play, options: LayoutOptions): LaidOutPage[] {
       return;
     }
 
-    // Não cabe inteiro. Se der para pôr ao menos duas linhas e ainda reservar a do
-    // "(continua)", divide; senão, o bloco vai todo para a página seguinte.
+    // Não cabe inteiro. Se der para pôr ao menos duas linhas do texto e ainda
+    // reservar a do "(continua)", divide; senão, o bloco vai todo para a página seguinte.
     let lines = block.lines;
     const room = free() - gap - (block.speaker ? 1 : 0);
-    if (!block.keepWithNext && room >= 2 && lines.length - room >= 1) {
+    const align = block.centered ? 'center' : 'left';
+    if (!block.keepWithNext && room >= (block.head ?? 0) + 2 && lines.length - room >= 1) {
       if (gap) page.push(BLANK);
       page.push(...lines.slice(0, room));
-      if (block.speaker) page.push({ spans: [{ text: labels.continues, italic: true }] });
+      if (block.speaker) page.push({ spans: [{ text: labels.continues, italic: true }], align });
       lines = lines.slice(room);
       newPage();
       if (block.speaker) {
-        page.push({ spans: [{ text: `${block.speaker} ${labels.continued}`, bold: true }] });
+        page.push({ spans: [{ text: `${block.speaker} ${labels.continued}`, bold: true }], align });
       }
     } else {
       newPage();

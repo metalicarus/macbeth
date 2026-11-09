@@ -227,3 +227,40 @@ describe('idioma da peça na paginação', () => {
     expect(pageTexts(layoutPlay(turkish, options({ charsPerLine: 60 }))[0]!)).toContain('KİRAL – Merhaba.');
   });
 });
+
+describe('formatação Centralizado', () => {
+  const centered = (play: Play): Play => ({ ...play, format: 'centered' });
+  const find = (lines: Line[], t: string) => lines.find((line) => text(line) === t);
+
+  it('nome e parentético centralizados, texto na margem e rubrica recuada', () => {
+    const play = centered(playWith(['Macbeth'], (c) => [direction('Trovão.'), speech(c.Macbeth!, 'Dia tão feio.', 'baixo')]));
+    const lines = layoutPlay(play, options())[0]!.lines;
+
+    expect(find(lines, '(Trovão.)')?.indent).toBe(10);
+    expect(find(lines, 'MACBETH')?.align).toBe('center');
+    expect(find(lines, '(baixo)')?.align).toBe('center');
+    expect(find(lines, 'Dia tão feio.')?.align).toBe('left');
+    expect(pageTexts(layoutPlay(play, options())[0]!).slice(-3)).toEqual(['MACBETH', '(baixo)', 'Dia tão feio.']);
+  });
+
+  it('o nome não fica no pé da página sem ao menos duas linhas do texto', () => {
+    const long = 'palavra '.repeat(18).trim();
+    const play = centered(
+      playWith(['Macbeth'], (c) => [direction('a'), direction('b'), direction('c'), speech(c.Macbeth!, long, 'baixo')]),
+    );
+    const pages = layoutPlay(play, options());
+
+    expect(pageTexts(pages[0]!)).not.toContain('MACBETH');
+    expect(pageTexts(pages[1]!).slice(0, 2)).toEqual(['MACBETH', '(baixo)']);
+  });
+
+  it('fala dividida continua com as marcas centralizadas', () => {
+    const long = 'palavra '.repeat(30).trim();
+    const play = centered(playWith(['Macbeth'], (c) => [speech(c.Macbeth!, long)]));
+    const pages = layoutPlay(play, options());
+
+    expect(pages[0]!.lines.at(-1)).toMatchObject({ align: 'center', spans: [{ text: '(continua)' }] });
+    expect(pages[1]!.lines[0]).toMatchObject({ align: 'center', spans: [{ text: 'MACBETH (cont.)' }] });
+    expect([...pageTexts(pages[0]!), ...pageTexts(pages[1]!)].join(' ').match(/palavra/g)).toHaveLength(30);
+  });
+});
