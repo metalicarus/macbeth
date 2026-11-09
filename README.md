@@ -13,7 +13,7 @@ Em desenvolvimento. A primeira entrega cobre:
 - abrir e salvar arquivos `.mbth`;
 - exportação em PDF;
 - visuais Papel (claro) e Coxia (escuro);
-- formatação "Em linha", o padrão das edições brasileiras.
+- formatações "Em linha" (o padrão das edições brasileiras) e "Centralizado" (o padrão em inglês), escolhidas por peça.
 
 ## Estrutura do repositório
 
