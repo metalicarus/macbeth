@@ -27,8 +27,9 @@ function licenseTexts(dir) {
     .map((name) => readFileSync(join(dir, name), 'utf8').trim());
 }
 
+/** Dependências de produção de todo o monorepo (o app leva o core, que tem as suas). */
 function javascriptPackages() {
-  const json = execSync('pnpm licenses list --prod --json', { cwd: web, encoding: 'utf8', maxBuffer: 64 << 20 });
+  const json = execSync('pnpm -r licenses list --prod --json', { cwd: web, encoding: 'utf8', maxBuffer: 64 << 20 });
   return Object.values(JSON.parse(json))
     .flat()
     .filter((pkg) => !pkg.name.startsWith('@macbeth/'))
