@@ -42,6 +42,11 @@ function add() {
   }
 }
 
+function describe(character: Character, event: Event) {
+  const input = event.target as HTMLInputElement;
+  if (input.value !== (character.description ?? '')) store.setCharacterDescription(character.id, input.value);
+}
+
 function recolor(id: Id, color: string) {
   store.setCharacterColor(id, color);
 }
@@ -98,6 +103,15 @@ function recolor(id: Id, color: string) {
             ×
           </button>
         </div>
+        <input
+          class="description"
+          type="text"
+          :value="character.description ?? ''"
+          :placeholder="t('cast.descriptionPlaceholder')"
+          :aria-label="t('cast.description', { name: character.name })"
+          @change="describe(character, $event)"
+          @keydown.enter="($event.target as HTMLInputElement).blur()"
+        />
         <p v-if="errors[character.id]" class="error" role="alert">{{ errors[character.id] }}</p>
       </li>
     </ul>
@@ -168,6 +182,25 @@ input:hover,
 input:focus {
   border-color: var(--line);
   background: var(--page);
+}
+
+.description {
+  display: block;
+  width: calc(100% - 22px);
+  margin-left: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.description::placeholder {
+  color: var(--muted);
+  opacity: 0;
+}
+
+/* A dica só aparece quando o campo é procurado, para a lista não ficar poluída. */
+li:hover .description::placeholder,
+.description:focus::placeholder {
+  opacity: 0.7;
 }
 
 small {

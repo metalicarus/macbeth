@@ -79,7 +79,9 @@
     "errors": {
       "empty-name": "The name can't be empty.",
       "duplicate-name": "There's already a character with that name."
-    }
+    },
+    "description": "Description of {name}",
+    "descriptionPlaceholder": "Who they are (e.g. King of Scotland)"
   },
   "dictionary": {
     "title": "Play dictionary",

@@ -8,6 +8,7 @@ import {
   removeFromDictionary,
   renameCharacter as renameInCast,
   setCharacterColor as recolorInCast,
+  setCharacterDescription as describeInCast,
   summarizePlay,
   writeMbth,
   type Character,
@@ -162,6 +163,11 @@ export const usePlayStore = defineStore('play', () => {
     autoCreated.delete(id);
   }
 
+  function setCharacterDescription(id: Id, description: string) {
+    change(describeInCast(play.value, id, description));
+    autoCreated.delete(id);
+  }
+
   function removeCharacter(id: Id) {
     change(removeFromCast(play.value, id));
     autoCreated.delete(id);
@@ -193,6 +199,7 @@ export const usePlayStore = defineStore('play', () => {
     addCharacter,
     renameCharacter,
     setCharacterColor,
+    setCharacterDescription,
     removeCharacter,
     addDictionaryWord,
     removeDictionaryWord,

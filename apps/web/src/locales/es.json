@@ -79,7 +79,9 @@
     "errors": {
       "empty-name": "El nombre no puede quedar vacío.",
       "duplicate-name": "Ya existe un personaje con ese nombre."
-    }
+    },
+    "description": "Descripción de {name}",
+    "descriptionPlaceholder": "Quién es (p. ej.: rey de Escocia)"
   },
   "dictionary": {
     "title": "Diccionario de la obra",
