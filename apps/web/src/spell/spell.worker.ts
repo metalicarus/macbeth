@@ -9,6 +9,8 @@ import type { SpellRequest, SpellResponse } from './protocol';
 
 let engine: SpellEngine | null = null;
 let loadedId: string | null = null;
+/** As palavras do dicionário da peça já acrescentadas, para tirar as que saírem da lista. */
+let playWords = new Set<string>();
 
 async function bytes(url: string): Promise<Uint8Array> {
   return new Uint8Array(await (await fetch(url)).arrayBuffer());
@@ -21,6 +23,7 @@ async function handle(request: SpellRequest): Promise<SpellResponse['result']> {
         engine?.dispose();
         engine = null;
         loadedId = null;
+        playWords = new Set();
         return true;
       }
       if (loadedId !== request.dictionary.id) {
@@ -28,8 +31,12 @@ async function handle(request: SpellRequest): Promise<SpellResponse['result']> {
         engine?.dispose();
         engine = await SpellEngine.create(aff, dic);
         loadedId = request.dictionary.id;
+        playWords = new Set();
       }
-      for (const word of request.words) engine!.add(word);
+      const next = new Set(request.words);
+      for (const word of playWords) if (!next.has(word)) engine!.remove(word);
+      for (const word of next) if (!playWords.has(word)) engine!.add(word);
+      playWords = next;
       return true;
     }
     case 'check':

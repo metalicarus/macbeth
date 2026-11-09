@@ -35,6 +35,13 @@ describe('SpellEngine', () => {
     expect(engine.misspelled(['Inverness'])).toEqual([]);
     engine.dispose();
   });
+
+  it('uma palavra tirada do dicionário da peça volta a ser marcada', async () => {
+    const engine = await SpellEngine.create(...files('dictionary-pt'), ['Glamis', 'Cawdor']);
+    engine.remove('Glamis');
+    expect(engine.misspelled(['Glamis', 'Cawdor'])).toEqual(['Glamis']);
+    engine.dispose();
+  });
 });
 
 describe('dictionaryFor', () => {

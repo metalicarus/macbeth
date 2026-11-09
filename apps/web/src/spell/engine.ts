@@ -43,6 +43,10 @@ export class SpellEngine {
     this.hunspell.addWord(word);
   }
 
+  remove(word: string): void {
+    this.hunspell.removeWord(word);
+  }
+
   dispose(): void {
     this.hunspell.dispose();
     for (const path of this.mounted) this.fs.unmount(path);
