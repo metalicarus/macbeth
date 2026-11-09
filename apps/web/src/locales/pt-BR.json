@@ -135,6 +135,28 @@
     "remove": "Apagar nota {number}",
     "goTo": "Ir até o trecho da nota {number}"
   },
+  "help": {
+    "label": "Ajuda"
+  },
+  "about": {
+    "open": "Sobre o Macbeth",
+    "close": "Fechar",
+    "tagline": "Editor de texto feito para o teatro.",
+    "version": "Versão {version}",
+    "license": "O Macbeth é software livre: você pode usá-lo, estudá-lo, modificá-lo e redistribuí-lo nos termos da licença GNU AGPL, versão 3. Ele vem sem nenhuma garantia.",
+    "source": "Código-fonte",
+    "agpl": "Licença GNU AGPL v3",
+    "thirdParty": "Componentes de terceiros",
+    "thirdPartyIntro": "O Macbeth também é feito do trabalho de outras pessoas. Estes são os principais:",
+    "groups": {
+      "dictionaries": "Corretor ortográfico",
+      "fonts": "Fontes",
+      "libraries": "Bibliotecas"
+    },
+    "fullList": "Lista completa, com o texto de cada licença",
+    "loading": "Carregando…",
+    "loadError": "Não foi possível abrir a lista de licenças."
+  },
   "shortcuts": {
     "title": "Atalhos",
     "open": "Atalhos de teclado",

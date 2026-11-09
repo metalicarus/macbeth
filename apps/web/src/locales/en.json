@@ -135,6 +135,28 @@
     "remove": "Delete note {number}",
     "goTo": "Go to the text of note {number}"
   },
+  "help": {
+    "label": "Help"
+  },
+  "about": {
+    "open": "About Macbeth",
+    "close": "Close",
+    "tagline": "A text editor made for the theater.",
+    "version": "Version {version}",
+    "license": "Macbeth is free software: you can use, study, modify and redistribute it under the terms of the GNU AGPL, version 3. It comes with no warranty.",
+    "source": "Source code",
+    "agpl": "GNU AGPL v3 license",
+    "thirdParty": "Third-party components",
+    "thirdPartyIntro": "Macbeth is also made of other people's work. These are the main ones:",
+    "groups": {
+      "dictionaries": "Spellchecker",
+      "fonts": "Fonts",
+      "libraries": "Libraries"
+    },
+    "fullList": "Full list, with the text of each license",
+    "loading": "Loading…",
+    "loadError": "Couldn't open the license list."
+  },
   "shortcuts": {
     "title": "Shortcuts",
     "open": "Keyboard shortcuts",

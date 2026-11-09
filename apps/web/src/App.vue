@@ -2,7 +2,9 @@
 import { storeToRefs } from 'pinia';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import AboutDialog from './components/AboutDialog.vue';
 import FileActions from './components/FileActions.vue';
+import HelpMenu from './components/HelpMenu.vue';
 import LanguageMenu from './components/LanguageMenu.vue';
 import LookToggle from './components/LookToggle.vue';
 import ModeTabs from './components/ModeTabs.vue';
@@ -36,8 +38,9 @@ onMounted(() =>
   ),
 );
 
-// Mapa de atalhos: botão "?", Ctrl+/ ou F1.
+// Mapa de atalhos: menu "?", Ctrl+/ ou F1. A janela Sobre abre pelo mesmo menu.
 const shortcutsOpen = ref(false);
+const aboutOpen = ref(false);
 
 function onKeydown(event: KeyboardEvent) {
   const isHelp = event.key === 'F1' || ((event.ctrlKey || event.metaKey) && event.key === '/');
@@ -70,17 +73,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         {{ t('panel.toggle') }}
       </button>
       <LanguageMenu />
-      <button
-        type="button"
-        class="help"
-        :aria-label="t('shortcuts.open')"
-        :title="`${t('shortcuts.open')} (Ctrl+/)`"
-        @click="shortcutsOpen = true"
-      >
-        ?
-      </button>
+      <HelpMenu @shortcuts="shortcutsOpen = true" @about="aboutOpen = true" />
     </header>
     <ShortcutsDialog v-model:open="shortcutsOpen" />
+    <AboutDialog v-model:open="aboutOpen" />
     <div class="body" :style="{ gridTemplateColumns: columns }">
       <NoticeBar />
       <OutlinePane v-if="showOutline" />
@@ -164,19 +160,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 .panel-toggle[aria-pressed='true'] {
   background: var(--accent-soft);
-  color: var(--ink);
-}
-
-.help {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  font: 600 13px/1 var(--font-ui);
-  color: var(--muted);
-}
-
-.help:hover {
   color: var(--ink);
 }
 
