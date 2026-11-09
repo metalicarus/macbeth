@@ -14,6 +14,7 @@ import { useI18n } from 'vue-i18n';
 import { baseName, fileProvider, PDF_FILE, suggestedFileName } from '../files';
 import { alertDialog, confirmDialog } from '../files/dialogs';
 import { clearRecent, forgetRecent, recentFiles } from '../files/recent';
+import { onOpenRequests } from '../files/requests';
 import { ImportError } from '../import';
 import { scriptFonts } from '../print/fonts';
 import { playToPdf } from '../print/pdf';
@@ -46,7 +47,7 @@ const newPlay = () => run(async () => (await discardChanges()) && store.newPlay(
 const open = () => run(async () => (await discardChanges()) && store.open());
 const save = (as = false) => run(() => store.save(t('app.untitled'), as));
 
-/** Recentes: abre sem perguntar o arquivo; se ele sumiu, sai da lista. */
+/** Recentes e duplo clique: abre sem perguntar o arquivo; se ele sumiu, sai da lista. */
 const openPath = (path: string) =>
   run(async () => {
     if (!(await discardChanges())) return;
@@ -111,6 +112,13 @@ function onKeydown(event: KeyboardEvent) {
 
 onMounted(() => window.addEventListener('keydown', onKeydown));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
+
+let stopRequests: (() => void) | null = null;
+onMounted(async () => {
+  await store.whenReady();
+  stopRequests = await onOpenRequests(openPath);
+});
+onBeforeUnmount(() => stopRequests?.());
 </script>
 
 <template>

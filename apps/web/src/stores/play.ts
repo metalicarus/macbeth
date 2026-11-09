@@ -163,6 +163,10 @@ export const usePlayStore = defineStore('play', () => {
    * a cópia. Gravações e limpezas passam por uma fila, para que uma cópia
    * atrasada não reapareça depois de a peça ser salva.
    */
+  // Resolvida quando a pergunta da abertura (checkRecovery) termina.
+  let markReady!: () => void;
+  const ready = new Promise<void>((resolve) => (markReady = resolve));
+
   const BACKUP_DELAY = 5_000;
   const BACKUP_MAX_WAIT = 60_000;
   let backupsOn = false;
@@ -235,6 +239,7 @@ export const usePlayStore = defineStore('play', () => {
       console.warn('Cópia de segurança:', error);
     } finally {
       backupsOn = true;
+      markReady();
       // Peça recuperada já está não salva: a cópia volta a ser feita.
       if (dirty.value) void backup();
     }
@@ -319,5 +324,7 @@ export const usePlayStore = defineStore('play', () => {
     removeDictionaryWord,
     checkRecovery,
     clearBackup,
+    /** Espera a pergunta da abertura, antes de abrir um arquivo pedido pelo sistema. */
+    whenReady: () => ready,
   };
 });
