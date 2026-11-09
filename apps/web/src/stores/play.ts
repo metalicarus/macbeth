@@ -324,6 +324,8 @@ export const usePlayStore = defineStore('play', () => {
     removeDictionaryWord,
     checkRecovery,
     clearBackup,
+    /** Grava a cópia de segurança agora (antes de atualizar o app, por exemplo). */
+    backupNow: backup,
     /** Espera a pergunta da abertura, antes de abrir um arquivo pedido pelo sistema. */
     whenReady: () => ready,
   };

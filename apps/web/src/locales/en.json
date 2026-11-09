@@ -58,6 +58,13 @@
     "recover": "Recover",
     "discard": "Discard"
   },
+  "update": {
+    "ask": "A new version of Macbeth is available ({version}). Install it now? The app will restart.",
+    "askUnsaved": "A new version of Macbeth is available ({version}). Install it now? The app will restart, and your unsaved changes will be offered back when it opens.",
+    "install": "Install now",
+    "later": "Later",
+    "failed": "Couldn't install the update: {detail}"
+  },
   "print": {
     "continues": "(continued)",
     "continued": "(cont'd)",

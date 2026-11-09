@@ -52,6 +52,9 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Assinatura das atualizações (não é a assinatura de código do sistema).
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
@@ -59,3 +62,5 @@ jobs:
           releaseBody: Instaladores para Windows, macOS e Linux. Veja no README como instalar.
           releaseDraft: true
           args: ${{ matrix.args }}
+          # latest.json: o arquivo que o app consulta para saber se há versão nova.
+          includeUpdaterJson: true

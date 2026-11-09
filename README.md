@@ -34,6 +34,8 @@ Os instaladores ainda não são assinados digitalmente, então o sistema avisa n
 - **macOS:** arraste o Macbeth para Aplicativos. Na primeira vez, clique nele com o botão direito, escolha **Abrir** e confirme. Se o sistema disser que o app "está danificado", rode no Terminal `xattr -dr com.apple.quarantine /Applications/Macbeth.app`.
 - **Linux (.AppImage):** dê permissão de execução (`chmod +x Macbeth_*.AppImage`) e abra.
 
+Depois de instalado, o Macbeth se atualiza sozinho: ao abrir, ele avisa quando há uma versão nova e pergunta antes de instalar.
+
 ## Estrutura do repositório
 
 ```
@@ -53,6 +55,8 @@ pnpm desktop     # abre o app de desktop
 pnpm dev         # abre só a versão web, em http://localhost:1420
 pnpm test        # roda os testes
 ```
+
+Para gerar os instaladores na sua máquina (`pnpm -C apps/desktop tauri build`), as atualizações precisam ser assinadas: defina `TAURI_SIGNING_PRIVATE_KEY` (o caminho da chave privada) e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. No GitHub Actions, os dois são segredos do repositório.
 
 ## Licença
 

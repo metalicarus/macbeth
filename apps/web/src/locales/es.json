@@ -58,6 +58,13 @@
     "recover": "Recuperar",
     "discard": "Descartar"
   },
+  "update": {
+    "ask": "Hay una versión nueva de Macbeth ({version}). ¿Quieres instalarla ahora? La aplicación se reiniciará.",
+    "askUnsaved": "Hay una versión nueva de Macbeth ({version}). ¿Quieres instalarla ahora? La aplicación se reiniciará y los cambios sin guardar se ofrecerán de nuevo al abrirla.",
+    "install": "Instalar ahora",
+    "later": "Más tarde",
+    "failed": "No se pudo instalar la actualización: {detail}"
+  },
   "print": {
     "continues": "(continúa)",
     "continued": "(cont.)",

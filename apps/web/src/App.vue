@@ -16,10 +16,11 @@ import RehearseView from './components/RehearseView.vue';
 import ShortcutsDialog from './components/ShortcutsDialog.vue';
 import StructureView from './components/StructureView.vue';
 import { guardUnsavedClose } from './files/close-guard';
-import { confirmDialog } from './files/dialogs';
+import { alertDialog, confirmDialog } from './files/dialogs';
 import { useNavigation } from './stores/navigation';
 import { usePlayStore } from './stores/play';
 import { usePreferences } from './stores/preferences';
+import { checkForUpdates } from './updates';
 
 const { t, locale } = useI18n();
 const store = usePlayStore();
@@ -41,14 +42,22 @@ onMounted(() =>
   ),
 );
 
-// Trabalho que ficou sem salvar quando o app (ou o computador) caiu.
-onMounted(() =>
-  store.checkRecovery((copy, recovered) => {
+// Na abertura: primeiro o trabalho que ficou sem salvar quando o app (ou o
+// computador) caiu; depois, se houver, a versão nova do app.
+onMounted(async () => {
+  await store.checkRecovery((copy, recovered) => {
     const name = copy.fileName ?? (recovered.titlePage.title || t('app.untitled'));
     const time = new Intl.DateTimeFormat(locale.value, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(copy.savedAt));
     return confirmDialog(t('recovery.ask', { name, time }), { ok: t('recovery.recover'), cancel: t('recovery.discard') });
-  }),
-);
+  });
+  await checkForUpdates({
+    ask: (version) =>
+      confirmDialog(t(dirty.value ? 'update.askUnsaved' : 'update.ask', { version }), { ok: t('update.install'), cancel: t('update.later') }),
+    // Alterações não salvas vão para a cópia de segurança e voltam na próxima abertura.
+    beforeInstall: () => store.backupNow(),
+    failed: (error) => alertDialog(t('update.failed', { detail: error instanceof Error ? error.message : String(error) })),
+  });
+});
 
 // Mapa de atalhos: menu "?", Ctrl+/ ou F1. A janela Sobre abre pelo mesmo menu.
 const shortcutsOpen = ref(false);
