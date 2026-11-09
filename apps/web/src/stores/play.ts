@@ -137,7 +137,6 @@ export const usePlayStore = defineStore('play', () => {
     dirty.value = true;
   }
 
-  /** Campos vazios do subtítulo saem do arquivo, em vez de ficarem como texto vazio. */
   function setFormat(format: PlayFormat) {
     if (format === playFormat(play.value)) return;
     // Em linha é o padrão: o arquivo só guarda o campo quando é outra formatação.
@@ -145,6 +144,7 @@ export const usePlayStore = defineStore('play', () => {
     change(format === 'inline' ? rest : { ...rest, format });
   }
 
+  /** Campos vazios do subtítulo saem do arquivo, em vez de ficarem como texto vazio. */
   function updateTitlePage(patch: Partial<TitlePage>) {
     const titlePage = { ...play.value.titlePage, ...patch };
     if (!titlePage.subtitle) delete titlePage.subtitle;
