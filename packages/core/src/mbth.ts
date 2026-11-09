@@ -121,6 +121,9 @@ export function validatePlay(data: unknown): Play {
   str(titlePage, 'subtitle', 'peça.titlePage', true);
   str(titlePage, 'language', 'peça.titlePage', true);
 
+  // Valor desconhecido (de uma versão mais nova) é aceito e lido como Em linha.
+  str(play, 'format', 'peça', true);
+
   if (play.dictionary !== undefined) {
     arr(play.dictionary, 'peça.dictionary').forEach((word, i) => {
       if (typeof word !== 'string') fail(`peça.dictionary[${i}]`, 'um texto');

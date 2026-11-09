@@ -27,6 +27,20 @@ export function playLanguage(play: Play): string {
   return play.titlePage.language || DEFAULT_PLAY_LANGUAGE;
 }
 
+/**
+ * Como a fala aparece na página. "inline" (Em linha), o padrão das edições
+ * brasileiras: nome, travessão e texto na mesma linha. "centered"
+ * (Centralizado), o padrão em inglês: nome centralizado sobre o texto.
+ */
+export type PlayFormat = 'inline' | 'centered';
+
+export const PLAY_FORMATS: readonly PlayFormat[] = ['inline', 'centered'];
+
+/** A formatação da peça; arquivos antigos (ou com um valor desconhecido) ficam Em linha. */
+export function playFormat(play: Play): PlayFormat {
+  return PLAY_FORMATS.includes(play.format as PlayFormat) ? play.format! : 'inline';
+}
+
 /** O personagem é um cadastro. As falas apontam para ele pelo id. */
 export interface Character {
   id: Id;
@@ -102,6 +116,8 @@ export interface Play {
    * invenções do autor). Vão junto com o arquivo, para quem o abrir.
    */
   dictionary?: string[];
+  /** Ausente: Em linha. */
+  format?: PlayFormat;
 }
 
 export function createScene(title = 'Cena 1'): Scene {

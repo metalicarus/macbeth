@@ -151,3 +151,11 @@ describe('dicionário da peça no arquivo', () => {
     expect(() => readMbth(zipWithPlay({ ...samplePlay(), dictionary: ['ok', 3] }))).toThrow('dictionary[1]');
   });
 });
+
+describe('formatação da peça no arquivo', () => {
+  it('guarda a formatação e recusa o que não é texto', () => {
+    const play = { ...samplePlay(), format: 'centered' as const };
+    expect(readMbth(writeMbth({ play, extras: {} })).play.format).toBe('centered');
+    expect(() => readMbth(zipWithPlay({ ...samplePlay(), format: 2 }))).toThrow('format');
+  });
+});
