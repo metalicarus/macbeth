@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { dictionaryFor } from '../spell/dictionaries';
 import { usePlayStore } from '../stores/play';
 import CastList from './CastList.vue';
+import DictionaryList from './DictionaryList.vue';
 import NotesList from './NotesList.vue';
 
 const { t, locale } = useI18n();
@@ -61,6 +62,7 @@ function update(key: keyof TitlePage, event: Event) {
     </section>
     <NotesList />
     <CastList />
+    <DictionaryList />
   </aside>
 </template>
 

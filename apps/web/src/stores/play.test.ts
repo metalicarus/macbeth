@@ -277,4 +277,17 @@ describe('dicionário da peça', () => {
     store.addDictionaryWord('Glamis');
     expect(store.play).toBe(before);
   });
+
+  it('tirar uma palavra a devolve ao corretor; tirar a última apaga a lista', async () => {
+    fakeFiles({ name: 'macbeth.mbth', bytes: writeMbth({ play: { ...createPlay(), dictionary: ['Cawdor', 'Glamis'] }, extras: {} }) });
+    const store = usePlayStore();
+    await store.open();
+
+    store.removeDictionaryWord('Glamis');
+    expect(store.play.dictionary).toEqual(['Cawdor']);
+    expect(store.dirty).toBe(true);
+
+    store.removeDictionaryWord('Cawdor');
+    expect(store.play.dictionary).toBeUndefined();
+  });
 });

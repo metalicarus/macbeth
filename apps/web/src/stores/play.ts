@@ -5,6 +5,7 @@ import {
   createPlay,
   readMbth,
   removeCharacter as removeFromCast,
+  removeFromDictionary,
   renameCharacter as renameInCast,
   setCharacterColor as recolorInCast,
   summarizePlay,
@@ -172,6 +173,12 @@ export const usePlayStore = defineStore('play', () => {
     if (next !== play.value) change(next);
   }
 
+  /** Tira a palavra do dicionário da peça: o corretor volta a sublinhá-la. */
+  function removeDictionaryWord(word: string) {
+    const next = removeFromDictionary(play.value, word);
+    if (next !== play.value) change(next);
+  }
+
   return {
     play,
     fileName,
@@ -188,5 +195,6 @@ export const usePlayStore = defineStore('play', () => {
     setCharacterColor,
     removeCharacter,
     addDictionaryWord,
+    removeDictionaryWord,
   };
 });

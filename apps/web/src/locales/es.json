@@ -81,6 +81,14 @@
       "duplicate-name": "Ya existe un personaje con ese nombre."
     }
   },
+  "dictionary": {
+    "title": "Diccionario de la obra",
+    "hint": "Palabras que el corrector acepta en esta obra, como nombres y términos antiguos. Van junto con el archivo. También se pueden añadir con el botón derecho sobre una palabra subrayada.",
+    "empty": "Todavía no hay palabras.",
+    "add": "Añadir",
+    "addPlaceholder": "Glamis, Cawdor…",
+    "remove": "Quitar «{word}» del diccionario"
+  },
   "import": {
     "button": "Importar",
     "summary": "Obra importada: {acts}, {scenes}, {characters} y {speeches}. Revísala y guárdala como .mbth.",

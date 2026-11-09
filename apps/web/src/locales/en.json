@@ -81,6 +81,14 @@
       "duplicate-name": "There's already a character with that name."
     }
   },
+  "dictionary": {
+    "title": "Play dictionary",
+    "hint": "Words the spellchecker accepts in this play, such as names and archaic terms. They travel with the file. You can also add one by right-clicking an underlined word.",
+    "empty": "No words yet.",
+    "add": "Add",
+    "addPlaceholder": "Glamis, Cawdor…",
+    "remove": "Remove “{word}” from the dictionary"
+  },
   "import": {
     "button": "Import",
     "summary": "Play imported: {acts}, {scenes}, {characters} and {speeches}. Check it and save as .mbth.",
