@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ensina ao Linux que .mbth é uma peça do Macbeth (e não um .zip qualquer). -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-macbeth">
+    <comment>Macbeth play</comment>
+    <comment xml:lang="pt_BR">Peça do Macbeth</comment>
+    <comment xml:lang="es">Obra de Macbeth</comment>
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.mbth" weight="60"/>
+  </mime-type>
+</mime-info>

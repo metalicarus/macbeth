@@ -34,6 +34,31 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "fileAssociations": [
+      {
+        "ext": [
+          "mbth"
+        ],
+        "name": "Macbeth",
+        "description": "Peça do Macbeth",
+        "role": "Editor",
+        "mimeType": "application/x-macbeth"
+      }
+    ],
+    "linux": {
+      "deb": {
+        "files": {
+          "/usr/share/mime/packages/macbeth.xml": "linux/macbeth-mime.xml"
+        },
+        "desktopTemplate": "linux/macbeth.desktop"
+      },
+      "rpm": {
+        "files": {
+          "/usr/share/mime/packages/macbeth.xml": "linux/macbeth-mime.xml"
+        },
+        "desktopTemplate": "linux/macbeth.desktop"
+      }
+    }
   }
 }
