@@ -15,6 +15,25 @@ Em desenvolvimento. A primeira entrega cobre:
 - visuais Papel (claro) e Coxia (escuro);
 - formatações "Em linha" (o padrão das edições brasileiras) e "Centralizado" (o padrão em inglês), escolhidas por peça.
 
+## Como instalar
+
+Baixe o instalador do seu sistema na página de [releases](https://github.com/metalicarus/macbeth/releases/latest):
+
+| Sistema | Arquivo |
+|---|---|
+| Windows | `.msi` ou `-setup.exe` |
+| macOS (Apple Silicon: M1 em diante) | `_aarch64.dmg` |
+| macOS (Intel) | `_x64.dmg` |
+| Linux (Debian, Ubuntu, Mint…) | `.deb` |
+| Linux (Fedora, openSUSE…) | `.rpm` |
+| Linux (qualquer distribuição) | `.AppImage` |
+
+Os instaladores ainda não são assinados digitalmente, então o sistema avisa na primeira vez:
+
+- **Windows:** na janela "O Windows protegeu o computador", clique em **Mais informações** e depois em **Executar assim mesmo**.
+- **macOS:** arraste o Macbeth para Aplicativos. Na primeira vez, clique nele com o botão direito, escolha **Abrir** e confirme. Se o sistema disser que o app "está danificado", rode no Terminal `xattr -dr com.apple.quarantine /Applications/Macbeth.app`.
+- **Linux (.AppImage):** dê permissão de execução (`chmod +x Macbeth_*.AppImage`) e abra.
+
 ## Estrutura do repositório
 
 ```
