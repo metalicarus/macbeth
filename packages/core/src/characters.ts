@@ -89,6 +89,20 @@ export function setCharacterColor(play: Play, id: Id, color: string): Play {
   };
 }
 
+/** Descrição curta do personagem ("rei da Escócia"); texto vazio apaga. */
+export function setCharacterDescription(play: Play, id: Id, description: string): Play {
+  if (!findCharacter(play, id)) throw new CharacterError('not-found', 'Personagem não encontrado.');
+  const cleaned = description.replace(/\s+/g, ' ').trim();
+  return {
+    ...play,
+    characters: play.characters.map((c) => {
+      if (c.id !== id) return c;
+      const { description: _, ...rest } = c;
+      return cleaned ? { ...rest, description: cleaned } : rest;
+    }),
+  };
+}
+
 /** Só remove personagens sem falas, para nunca deixar uma fala sem dono. */
 export function removeCharacter(play: Play, id: Id): Play {
   if (!findCharacter(play, id)) throw new CharacterError('not-found', 'Personagem não encontrado.');
@@ -96,6 +110,29 @@ export function removeCharacter(play: Play, id: Id): Play {
     throw new CharacterError('has-speeches', 'O personagem ainda tem falas na peça.');
   }
   return { ...play, characters: play.characters.filter((c) => c.id !== id) };
+}
+
+/**
+ * O elenco na ordem em que cada um fala pela primeira vez; quem não fala
+ * vem no fim, na ordem do cadastro. É a ordem da lista de personagens.
+ */
+export function charactersByAppearance(play: Play): Character[] {
+  const order: Id[] = [];
+  for (const act of play.acts) {
+    for (const scene of act.scenes) {
+      for (const element of scene.elements) {
+        if (element.type === 'speech' && !order.includes(element.characterId)) order.push(element.characterId);
+      }
+    }
+  }
+  const rank = (c: Character) => {
+    const i = order.indexOf(c.id);
+    return i === -1 ? order.length : i;
+  };
+  return play.characters
+    .map((character, i) => ({ character, i }))
+    .sort((a, b) => rank(a.character) - rank(b.character) || a.i - b.i)
+    .map(({ character }) => character);
 }
 
 export function countSpeeches(play: Play): Map<Id, number> {

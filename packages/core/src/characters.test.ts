@@ -3,11 +3,13 @@ import {
   addCharacter,
   CHARACTER_COLORS,
   CharacterError,
+  charactersByAppearance,
   countSpeeches,
   findCharacterByName,
   removeCharacter,
   renameCharacter,
   setCharacterColor,
+  setCharacterDescription,
   suggestCharacters,
 } from './characters';
 import { newId } from './ids';
@@ -100,6 +102,29 @@ describe('setCharacterColor', () => {
   it('recusa cor fora do formato #RRGGBB', () => {
     const play = playWith('Macbeth');
     expect(() => setCharacterColor(play, play.characters[0]!.id, 'azul')).toThrow(CharacterError);
+  });
+});
+
+describe('setCharacterDescription', () => {
+  it('grava a descrição limpa e apaga quando fica vazia', () => {
+    const base = playWith('Macbeth');
+    const id = base.characters[0]!.id;
+
+    const described = setCharacterDescription(base, id, '  general   do rei ');
+    expect(described.characters[0]!.description).toBe('general do rei');
+
+    const cleared = setCharacterDescription(described, id, '  ');
+    expect(cleared.characters[0]).not.toHaveProperty('description');
+  });
+});
+
+describe('charactersByAppearance', () => {
+  it('ordena pela primeira fala; quem não fala vai para o fim, na ordem do cadastro', () => {
+    const base = playWith('Duncan', 'Macbeth', 'Fleance', 'Bruxa');
+    const [duncan, macbeth, fleance, bruxa] = base.characters.map((c) => c.id);
+    const play = withSpeeches(base, [bruxa!, macbeth!, bruxa!, duncan!]);
+
+    expect(charactersByAppearance(play).map((c) => c.id)).toEqual([bruxa, macbeth, duncan, fleance]);
   });
 });
 
