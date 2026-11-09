@@ -4,6 +4,7 @@ import { strToU8 } from 'fflate';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setFileProvider, type FileHandle, type FileProvider } from '../files';
+import { clearRecent, recentFiles } from '../files/recent';
 import { setRecoveryStore, type RecoveryCopy, type RecoveryStore } from '../files/recovery';
 import { i18n } from '../i18n';
 import { usePlayStore } from './play';
@@ -21,6 +22,10 @@ function fakeFiles(toOpen?: { name: string; bytes: Uint8Array }) {
   let cancel = false;
   const provider: FileProvider = {
     open: async () => (toOpen && !cancel ? { ...toOpen, handle: `/peças/${toOpen.name}` } : null),
+    openPath: async (path) => {
+      if (!toOpen) throw new Error('arquivo não encontrado');
+      return { name: path.split('/').pop()!, bytes: toOpen.bytes, handle: path };
+    },
     save: async (bytes, handle, suggestedName) => {
       if (cancel) return null;
       saves.push({ bytes, handle, suggestedName });
@@ -409,6 +414,27 @@ describe('cópia de segurança', () => {
     store.applyDoc(docWithCues('Macbeth'));
     await vi.advanceTimersByTimeAsync(10_000);
     expect(recovery.copy).toBe(old);
+  });
+});
+
+describe('arquivos recentes', () => {
+  beforeEach(() => clearRecent());
+
+  it('abrir e salvar põem o arquivo no topo; abrir pelo caminho não pergunta nada', async () => {
+    const bytes = writeMbth({ play: createPlay({ title: 'Macbeth' }), extras: {} });
+    fakeFiles({ name: 'macbeth.mbth', bytes });
+    const store = usePlayStore();
+
+    await store.open();
+    expect(recentFiles.value).toEqual([{ path: '/peças/macbeth.mbth', name: 'macbeth.mbth' }]);
+
+    await store.openPath('/outras/hamlet.mbth');
+    expect(store.fileName).toBe('hamlet.mbth');
+    expect(store.play.titlePage.title).toBe('Macbeth');
+    expect(recentFiles.value.map((f) => f.name)).toEqual(['hamlet.mbth', 'macbeth.mbth']);
+
+    await store.open();
+    expect(recentFiles.value.map((f) => f.name)).toEqual(['macbeth.mbth', 'hamlet.mbth']);
   });
 });
 

@@ -24,7 +24,8 @@ import { defineStore } from 'pinia';
 import { ref, shallowRef, watch } from 'vue';
 import { docToPlay } from '../editor/convert';
 import { i18n } from '../i18n';
-import { fileProvider, IMPORT_FILES, suggestedFileName, type FileHandle } from '../files';
+import { fileProvider, IMPORT_FILES, suggestedFileName, type FileHandle, type OpenedFile } from '../files';
+import { rememberRecent } from '../files/recent';
 import { recoveryStore, type RecoveryCopy } from '../files/recovery';
 import { importPlay } from '../import';
 
@@ -68,13 +69,30 @@ export const usePlayStore = defineStore('play', () => {
     load(newBlankPlay(), { name: null, handle: null, extras: {} });
   }
 
+  /** No desktop, o arquivo aberto ou salvo entra nos recentes. */
+  function remember(file: { name: string; handle: FileHandle | null }) {
+    if (typeof file.handle === 'string') rememberRecent(file.handle, file.name);
+  }
+
+  function loadOpened(file: OpenedFile) {
+    const { play: opened, extras: openedExtras } = readMbth(file.bytes);
+    load(opened, { name: file.name, handle: file.handle, extras: openedExtras });
+    remember(file);
+  }
+
   /** Abre um .mbth. Devolve `false` se a pessoa cancelar; erros de formato são lançados (MbthError). */
   async function open(): Promise<boolean> {
     const file = await fileProvider().open();
     if (!file) return false;
-    const { play: opened, extras: openedExtras } = readMbth(file.bytes);
-    load(opened, { name: file.name, handle: file.handle, extras: openedExtras });
+    loadOpened(file);
     return true;
+  }
+
+  /** Abre direto um .mbth pelo caminho (recentes, duplo clique no arquivo). Só no desktop. */
+  async function openPath(path: string): Promise<void> {
+    const provider = fileProvider();
+    if (!provider.openPath) throw new Error('Este ambiente não abre arquivos pelo caminho.');
+    loadOpened(await provider.openPath(path));
   }
 
   /**
@@ -108,6 +126,7 @@ export const usePlayStore = defineStore('play', () => {
     if (!saved) return false;
     fileName.value = saved.name;
     handle = saved.handle;
+    remember(saved);
     dirty.value = false;
     return true;
   }
@@ -285,6 +304,7 @@ export const usePlayStore = defineStore('play', () => {
     revision,
     newPlay,
     open,
+    openPath,
     importFrom,
     save,
     applyDoc,

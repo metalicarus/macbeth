@@ -29,6 +29,11 @@ export interface FileProvider {
    * Devolve `null` se a pessoa cancelar.
    */
   save(bytes: Uint8Array, handle: FileHandle | null, suggestedName: string, type?: FileType): Promise<SavedFile | null>;
+  /**
+   * Abre direto um arquivo já conhecido (recentes, duplo clique), sem
+   * perguntar. Só existe onde o handle é um caminho guardável (desktop).
+   */
+  openPath?(path: string): Promise<OpenedFile>;
 }
 
 export interface FileType {

@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { MbthError } from '@macbeth/core';
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui';
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from 'reka-ui';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { fileProvider, PDF_FILE, suggestedFileName } from '../files';
+import { baseName, fileProvider, PDF_FILE, suggestedFileName } from '../files';
 import { alertDialog, confirmDialog } from '../files/dialogs';
+import { clearRecent, forgetRecent, recentFiles } from '../files/recent';
 import { ImportError } from '../import';
 import { scriptFonts } from '../print/fonts';
 import { playToPdf } from '../print/pdf';
@@ -36,6 +45,24 @@ async function run(action: () => Promise<unknown>): Promise<void> {
 const newPlay = () => run(async () => (await discardChanges()) && store.newPlay());
 const open = () => run(async () => (await discardChanges()) && store.open());
 const save = (as = false) => run(() => store.save(t('app.untitled'), as));
+
+/** Recentes: abre sem perguntar o arquivo; se ele sumiu, sai da lista. */
+const openPath = (path: string) =>
+  run(async () => {
+    if (!(await discardChanges())) return;
+    try {
+      await store.openPath(path);
+    } catch (error) {
+      if (error instanceof MbthError) throw error;
+      forgetRecent(path);
+      await alertDialog(t('file.errors.missing', { name: baseName(path) }));
+    }
+  });
+
+const canOpenPath = Boolean(fileProvider().openPath);
+
+/** Pasta do arquivo, para distinguir dois recentes com o mesmo nome. */
+const folderOf = (path: string) => path.slice(0, path.length - baseName(path).length - 1);
 
 const importFile = () =>
   run(async () => {
@@ -89,7 +116,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 <template>
   <div class="actions">
     <button type="button" :title="`${t('file.new')} (Ctrl+N)`" @click="newPlay">{{ t('file.new') }}</button>
-    <button type="button" :title="`${t('file.open')} (Ctrl+O)`" @click="open">{{ t('file.open') }}</button>
+    <span class="split">
+      <button type="button" :title="`${t('file.open')} (Ctrl+O)`" @click="open">{{ t('file.open') }}</button>
+      <DropdownMenuRoot v-if="canOpenPath && recentFiles.length">
+        <DropdownMenuTrigger as-child>
+          <button type="button" class="more" :aria-label="t('file.recent')" :title="t('file.recent')">▾</button>
+        </DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuContent class="popup-menu recent-menu" align="start" :side-offset="6">
+            <DropdownMenuLabel class="popup-menu-label">{{ t('file.recent') }}</DropdownMenuLabel>
+            <DropdownMenuItem v-for="file in recentFiles" :key="file.path" class="popup-menu-item" :title="file.path" @select="openPath(file.path)">
+              <span>{{ file.name }}</span>
+              <small>{{ folderOf(file.path) }}</small>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator class="popup-menu-separator" />
+            <DropdownMenuItem class="popup-menu-item" @select="clearRecent()">{{ t('file.clearRecent') }}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
+    </span>
     <button type="button" :title="`${t('import.button')} .docx, .odt, Fountain (Ctrl+I)`" @click="importFile">
       {{ t('import.button') }}
     </button>
@@ -141,6 +186,16 @@ button {
 button:hover {
   color: var(--ink);
   background: var(--pane);
+}
+
+.split {
+  display: flex;
+}
+
+/* O ▾ fica colado ao Abrir, como um botão só. */
+.split .more {
+  padding: 5px 5px;
+  margin-left: -6px;
 }
 
 button.primary {

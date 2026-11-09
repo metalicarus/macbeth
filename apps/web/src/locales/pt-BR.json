@@ -40,7 +40,8 @@
       "invalid-json": "O conteúdo da peça está corrompido.",
       "newer-version": "Este arquivo foi salvo por uma versão mais nova do Macbeth. Atualize o aplicativo para abri-lo.",
       "invalid-structure": "A estrutura da peça neste arquivo está danificada.",
-      "generic": "Não foi possível concluir a operação: {detail}"
+      "generic": "Não foi possível concluir a operação: {detail}",
+      "missing": "Não foi possível abrir “{name}”. O arquivo pode ter sido movido ou apagado; ele saiu da lista de recentes."
     },
     "exportPdf": "Exportar PDF",
     "confirmClose": "A peça tem alterações que não foram salvas. Fechar mesmo assim?",
@@ -48,7 +49,9 @@
     "exportShowHint": "Sem os trechos cortados (Ctrl+P)",
     "exportDirector": "PDF da direção",
     "exportDirectorHint": "Com os cortes riscados (Ctrl+Shift+P)",
-    "directorSuffix": "direção"
+    "directorSuffix": "direção",
+    "recent": "Abertos recentemente",
+    "clearRecent": "Limpar a lista"
   },
   "recovery": {
     "ask": "O Macbeth fechou sem salvar “{name}”. Há uma cópia de segurança de {time}. Quer recuperá-la?",

@@ -40,7 +40,8 @@
       "invalid-json": "El contenido de la obra está dañado.",
       "newer-version": "Este archivo se guardó con una versión más nueva de Macbeth. Actualiza la aplicación para abrirlo.",
       "invalid-structure": "La estructura de la obra en este archivo está dañada.",
-      "generic": "No se pudo completar la operación: {detail}"
+      "generic": "No se pudo completar la operación: {detail}",
+      "missing": "No se pudo abrir «{name}». Puede que el archivo se haya movido o borrado; se quitó de la lista de recientes."
     },
     "exportPdf": "Exportar PDF",
     "confirmClose": "La obra tiene cambios sin guardar. ¿Cerrar de todos modos?",
@@ -48,7 +49,9 @@
     "exportShowHint": "Sin los fragmentos cortados (Ctrl+P)",
     "exportDirector": "PDF de la dirección",
     "exportDirectorHint": "Con los cortes tachados (Ctrl+Shift+P)",
-    "directorSuffix": "dirección"
+    "directorSuffix": "dirección",
+    "recent": "Abiertos recientemente",
+    "clearRecent": "Vaciar la lista"
   },
   "recovery": {
     "ask": "Macbeth se cerró sin guardar «{name}». Hay una copia de seguridad de {time}. ¿Quieres recuperarla?",

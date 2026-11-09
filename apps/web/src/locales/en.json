@@ -40,7 +40,8 @@
       "invalid-json": "The play's content is corrupted.",
       "newer-version": "This file was saved by a newer version of Macbeth. Update the app to open it.",
       "invalid-structure": "The structure of the play in this file is damaged.",
-      "generic": "The operation could not be completed: {detail}"
+      "generic": "The operation could not be completed: {detail}",
+      "missing": "Couldn't open “{name}”. The file may have been moved or deleted; it was removed from the recent list."
     },
     "exportPdf": "Export PDF",
     "confirmClose": "The play has unsaved changes. Close anyway?",
@@ -48,7 +49,9 @@
     "exportShowHint": "Without the cut text (Ctrl+P)",
     "exportDirector": "Director's PDF",
     "exportDirectorHint": "With the cuts struck through (Ctrl+Shift+P)",
-    "directorSuffix": "director"
+    "directorSuffix": "director",
+    "recent": "Recently opened",
+    "clearRecent": "Clear the list"
   },
   "recovery": {
     "ask": "Macbeth closed without saving “{name}”. There is a backup copy from {time}. Do you want to recover it?",

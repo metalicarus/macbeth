@@ -12,6 +12,10 @@ export function tauriFiles(): FileProvider {
       return { name: baseName(path), bytes: await readFile(path), handle: path };
     },
 
+    async openPath(path) {
+      return { name: baseName(path), bytes: await readFile(path), handle: path };
+    },
+
     async save(bytes, handle, suggestedName, type = MBTH_FILE) {
       const filters = [{ name: FILTER_NAME, extensions: [type.extension] }];
       let path = typeof handle === 'string' ? handle : null;
