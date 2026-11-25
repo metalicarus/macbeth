@@ -90,7 +90,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY0MUJBRTFGNTI3RjBBQjMKUldTekNuOVNINjRiOVBZN09VUTdLb2tGQWlBdjB3V0xheWR1bkUvLzU2bTBMQUYwR05JUDg0YlkK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEEwQzNEQTg2ODdFOEJEMEUKUldRT3ZlaUhodHJEb1BBcWx1Z1N5TGVoNkRhWGlJZkhKL3MxUm9LT3RZZ3BIOWZ0TjVYNXo3UmEK",
       "endpoints": [
         "https://github.com/metalicarus/macbeth/releases/latest/download/latest.json"
       ]
